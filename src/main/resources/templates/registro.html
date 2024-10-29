@@ -39,16 +39,34 @@
             border: 1px solid #ccc;
             font-size: 16px;
         }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
         button {
             padding: 10px;
-            background-color: #8989f0;
-            color: white;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             cursor: pointer;
+            width: 48%;
+            color: white;
         }
-        button:hover {
+        .register-button {
+            background-color: #8989f0;
+        }
+        .register-button:hover {
+            background-color: #a7c4eb;
+        }
+        .login-button {
+            background-color: #8989f0;
+            text-decoration: none;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-button:hover {
             background-color: #a7c4eb;
         }
     </style>
@@ -73,12 +91,11 @@
             <option value="fabricante">Fabricante</option>
         </select>
 
-        <button type="submit">Registrar</button>
+        <div class="button-container">
+            <button type="submit" class="register-button">Registrar</button>
+            <button type="button" class="login-button" onclick="window.location.href='iniciosesion.html'">Iniciar sesión</button>
+        </div>
     </form>
-</div>
-<div class="register-link">
-    <p>¿Ya tienes una cuenta? <a href="iniciosesion.html">Inicia sesion aqui</a></p>
-</div>
 </div>
 </body>
 </html>
