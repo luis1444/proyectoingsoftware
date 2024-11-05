@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Fabricante</title>
+    <style>
+        /* Estilos básicos */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1000px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 30%;
+            background-color: #007bff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .sidebar h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .sidebar .button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #0069d9;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .sidebar .button:hover {
+            background-color: #0056b3;
+        }
+        .main-content {
+            width: 70%;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .catalog {
+            width: 100%;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .vehicle-list {
+            width: 100%;
+            margin-top: 10px;
+            color: #333;
+        }
+        .vehicle-item {
+            background-color: #f3f3f3;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        /* Estilo para el iframe modal */
+        .iframe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .iframe-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            width: 500px;
+            height: 600px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Barra lateral con botones -->
+    <div class="sidebar">
+        <h2>Panel de Fabricante</h2>
+        <a href="#" class="button" onclick="abrirRegistro()">Registrar Vehículos</a>
+        <a href="#" class="button" onclick="consultarPedidos()">Consultar Pedidos</a>
+        <a href="#" class="button" onclick="verificarDisponibilidad()">Verificar Disponibilidad</a>
+        <a href="#" class="button" onclick="modificarCatalogo()">Modificar Catálogo</a>
+        <a href="#" class="button" onclick="entregarPedidos()">Entregar Pedidos</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="catalog">CATÁLOGO DE VEHÍCULOS</div>
+        <div class="vehicle-list" id="vehicleList">
+            <!-- Aquí se cargarán los vehículos registrados -->
+        </div>
+    </div>
+</div>
+
+<!-- Ventana emergente con iframe para el formulario -->
+<div class="iframe-modal" id="iframeModal">
+    <div class="iframe-container">
+        <iframe src="registroVehiculos.html" id="registroIframe"></iframe>
+    </div>
+</div>
+
+<script>
+    // Arreglo donde se almacenarán los vehículos registrados
+    const vehiculos = [];
+
+    // Función para abrir el formulario de registro en el iframe modal
+    function abrirRegistro() {
+        document.getElementById("iframeModal").style.display = "flex";
+    }
+
+    // Función para cerrar el iframe modal desde registro.html
+    function cerrarModal() {
+        document.getElementById("iframeModal").style.display = "none";
+    }
+
+    // Función para cargar los últimos tres vehículos registrados en la sección de catálogo
+    function cargarVehiculos() {
+        const vehicleList = document.getElementById("vehicleList");
+        vehicleList.innerHTML = ""; // Limpiar el contenido
+
+        // Obtener los últimos tres vehículos
+        const ultimosVehiculos = vehiculos.slice(-3); // Toma los últimos tres elementos del array
+
+        ultimosVehiculos.forEach(vehiculo => {
+            const vehicleItem = document.createElement("div");
+            vehicleItem.classList.add("vehicle-item");
+            vehicleItem.innerHTML = `
+                <span><strong>Marca:</strong> ${vehiculo.marca}</span>
+                <span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
+                <span><strong>Año:</strong> ${vehiculo.anio}</span>
+                <span><strong>Color:</strong> ${vehiculo.color}</span>
+                <span><strong>Precio:</strong> ${vehiculo.precio}</span>
+                <span><strong>Combustible:</strong> ${vehiculo.combustible}</span>
+                <span><strong>País:</strong> ${vehiculo.pais}</span>
+                <img src="${vehiculo.foto}" alt="Foto del vehículo" style="max-width: 100px; max-height: 100px;">
+            `;
+            vehicleList.appendChild(vehicleItem);
+        });
+    }
+
+    // Función para registrar un vehículo desde el iframe
+    function registrarVehiculo(vehiculo) {
+        vehiculos.push(vehiculo);
+        cargarVehiculos();
+        cerrarModal();
+    }
+
+    // Evento para recibir datos desde el iframe
+    window.addEventListener("message", function(event) {
+        if (event.data.action === "registrarVehiculo") {
+            registrarVehiculo(event.data.vehiculo);
+            alert("Vehículo registrado con éxito.");
+        }
+    });
+</script>
+</body>
+</html>
