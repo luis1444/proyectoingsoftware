@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class UsuarioControlador {
 
-    private final UsuarioServicios usuarioServicio;
+     UsuarioServicios usuarioServicio;
 
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
@@ -35,9 +35,6 @@ public class UsuarioControlador {
 
     @PostMapping("/iniciar-sesion")
     public String iniciarSesion(String usuario, String contrasena, Model model) {
-        System.out.println("Usuario: " + usuario);  // Imprime el nombre de usuario
-        System.out.println("Contraseña: " + contrasena);  // Imprime la contraseña
-
         Usuario usuarioAutenticado = usuarioServicio.autenticarUsuario(usuario, contrasena);
 
         if (usuarioAutenticado != null) {
@@ -62,5 +59,6 @@ public class UsuarioControlador {
     public String mostrarPantallaFabricante(Model model) {
         return "pantallaFabricante";
     }
+
 
 }

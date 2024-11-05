@@ -114,6 +114,20 @@
             height: 100%;
             border: none;
         }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -140,7 +154,8 @@
 <!-- Ventana emergente con iframe para el formulario -->
 <div class="iframe-modal" id="iframeModal">
     <div class="iframe-container">
-        <iframe src="registroVehiculos.html" id="registroIframe"></iframe>
+        <button class="close-btn" onclick="cerrarModal()">X</button>
+        <iframe src="/registroVehiculo" id="registroIframe"></iframe>
     </div>
 </div>
 
@@ -150,13 +165,22 @@
 
     // Función para abrir el formulario de registro en el iframe modal
     function abrirRegistro() {
+        // Mostrar el modal (iframe)
         document.getElementById("iframeModal").style.display = "flex";
+
     }
 
-    // Función para cerrar el iframe modal desde registro.html
+    // Función para cerrar el iframe modal
     function cerrarModal() {
         document.getElementById("iframeModal").style.display = "none";
     }
+
+    // Cerrar el modal cuando el usuario haga clic fuera del iframe
+    document.getElementById("iframeModal").addEventListener("click", function(event) {
+        if (event.target === this) {
+            cerrarModal();  // Si hace clic fuera del modal, cerrarlo
+        }
+    });
 
     // Función para cargar los últimos tres vehículos registrados en la sección de catálogo
     function cargarVehiculos() {

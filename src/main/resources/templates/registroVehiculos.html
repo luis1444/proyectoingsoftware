@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Registro de Vehículo</title>
@@ -49,9 +49,6 @@
             border-color: #007bff;
             outline: none;
         }
-        .form-group input[type="file"] {
-            padding: 5px;
-        }
         .button-submit {
             width: 100%;
             padding: 12px;
@@ -73,68 +70,37 @@
 <body>
 <div class="form-container">
     <h3>Registrar Vehículo</h3>
-    <div class="form-group">
-        <label for="marca">Marca:</label>
-        <input type="text" id="marca" placeholder="Ingrese la marca del vehículo">
-    </div>
-    <div class="form-group">
-        <label for="modelo">Modelo:</label>
-        <input type="text" id="modelo" placeholder="Ingrese el modelo del vehículo">
-    </div>
-    <div class="form-group">
-        <label for="anio">Año de Fabricación:</label>
-        <input type="number" id="anio" placeholder="Ingrese el año de fabricación">
-    </div>
-    <div class="form-group">
-        <label for="color">Color:</label>
-        <input type="text" id="color" placeholder="Ingrese el color del vehículo">
-    </div>
-    <div class="form-group">
-        <label for="precio">Precio:</label>
-        <input type="text" id="precio" placeholder="Ingrese el precio">
-    </div>
-    <div class="form-group">
-        <label for="combustible">Tipo de Combustible:</label>
-        <input type="text" id="combustible" placeholder="Ingrese el tipo de combustible">
-    </div>
-    <div class="form-group">
-        <label for="pais">País de Origen:</label>
-        <input type="text" id="pais" placeholder="Ingrese el país de origen">
-    </div>
-    <div class="form-group">
-        <label for="foto">Foto:</label>
-        <input type="file" id="foto" accept="image/*">
-    </div>
-    <button class="button-submit" onclick="enviarRegistro()">Registrar</button>
+    <form th:action="@{/registro-vehiculo}" th:object="${vehiculo}" method="post">
+        <div class="form-group">
+            <label for="marca">Marca:</label>
+            <input type="text" id="marca" th:field="*{marca}" placeholder="Ingrese la marca del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" th:field="*{modelo}" placeholder="Ingrese el modelo del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="ano">Año de Fabricación:</label>
+            <input type="number" id="ano" th:field="*{ano}" placeholder="Ingrese el año de fabricación" required>
+        </div>
+        <div class="form-group">
+            <label for="color">Color:</label>
+            <input type="text" id="color" th:field="*{color}" placeholder="Ingrese el color del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="precio">Precio:</label>
+            <input type="text" id="precio" th:field="*{precio}" placeholder="Ingrese el precio" required>
+        </div>
+        <div class="form-group">
+            <label for="tipoCombustible">Tipo de Combustible:</label>
+            <input type="text" id="tipoCombustible" th:field="*{tipoCombustible}" placeholder="Ingrese el tipo de combustible" required>
+        </div>
+        <div class="form-group">
+            <label for="paisOrigen">País de Origen:</label>
+            <input type="text" id="paisOrigen" th:field="*{paisOrigen}" placeholder="Ingrese el país de origen" required>
+        </div>
+        <button type="submit" class="button-submit">Registrar</button>
+    </form>
 </div>
-
-<script>
-    function enviarRegistro() {
-        const marca = document.getElementById("marca").value;
-        const modelo = document.getElementById("modelo").value;
-        const anio = document.getElementById("anio").value;
-        const color = document.getElementById("color").value;
-        const precio = document.getElementById("precio").value;
-        const combustible = document.getElementById("combustible").value;
-        const pais = document.getElementById("pais").value;
-        const fotoInput = document.getElementById("foto");
-
-        let fotoURL = "";
-        if (fotoInput.files && fotoInput.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                fotoURL = e.target.result;
-                enviarDatos({ marca, modelo, anio, color, precio, combustible, pais, foto: fotoURL });
-            };
-            reader.readAsDataURL(fotoInput.files[0]);
-        } else {
-            enviarDatos({ marca, modelo, anio, color, precio, combustible, pais, foto: "" });
-        }
-    }
-
-    function enviarDatos(vehiculo) {
-        window.parent.postMessage({ action: "registrarVehiculo", vehiculo: vehiculo }, "*");
-    }
-</script>
 </body>
 </html>

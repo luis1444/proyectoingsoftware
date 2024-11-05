@@ -24,6 +24,6 @@ public class Usuario {
     @Column(name = "usu_contrasena")
     public String contrasena;
 
-    @Column(name = "usu_rol")  // Asegúrate de que este campo exista en tu tabla de usuarios en la base de datos
+    @Column(name = "usu_rol")
     public String rol;
 }
