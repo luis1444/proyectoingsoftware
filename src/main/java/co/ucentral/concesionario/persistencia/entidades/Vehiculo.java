@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Vehiculo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID autogenerado
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "veh_id")
     private Long id;
 
@@ -25,8 +25,8 @@ public class Vehiculo {
     @Column(name = "veh_modelo", nullable = false)
     private String modelo;
 
-    @Column(name = "veh_ano", nullable = false)
-    private int ano;
+    @Column(name = "veh_anio", nullable = false)
+    private int anio;
 
     @Column(name = "veh_color", nullable = false)
     private String color;

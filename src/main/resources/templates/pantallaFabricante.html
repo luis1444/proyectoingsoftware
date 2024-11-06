@@ -160,14 +160,10 @@
 </div>
 
 <script>
-    // Arreglo donde se almacenarán los vehículos registrados
-    const vehiculos = [];
-
     // Función para abrir el formulario de registro en el iframe modal
     function abrirRegistro() {
         // Mostrar el modal (iframe)
         document.getElementById("iframeModal").style.display = "flex";
-
     }
 
     // Función para cerrar el iframe modal
@@ -187,40 +183,67 @@
         const vehicleList = document.getElementById("vehicleList");
         vehicleList.innerHTML = ""; // Limpiar el contenido
 
-        // Obtener los últimos tres vehículos
-        const ultimosVehiculos = vehiculos.slice(-3); // Toma los últimos tres elementos del array
+        // Hacer una solicitud GET al servidor para obtener los vehículos
+        fetch('/api/vehiculos')
+            .then(response => response.json())
+            .then(vehiculos => {
+                // Obtener los últimos tres vehículos
+                const ultimosVehiculos = vehiculos.slice(-3);
 
-        ultimosVehiculos.forEach(vehiculo => {
-            const vehicleItem = document.createElement("div");
-            vehicleItem.classList.add("vehicle-item");
-            vehicleItem.innerHTML = `
-                <span><strong>Marca:</strong> ${vehiculo.marca}</span>
-                <span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
-                <span><strong>Año:</strong> ${vehiculo.anio}</span>
-                <span><strong>Color:</strong> ${vehiculo.color}</span>
-                <span><strong>Precio:</strong> ${vehiculo.precio}</span>
-                <span><strong>Combustible:</strong> ${vehiculo.combustible}</span>
-                <span><strong>País:</strong> ${vehiculo.pais}</span>
-                <img src="${vehiculo.foto}" alt="Foto del vehículo" style="max-width: 100px; max-height: 100px;">
-            `;
-            vehicleList.appendChild(vehicleItem);
-        });
+                // Mostrar los vehículos en la interfaz
+                ultimosVehiculos.forEach(vehiculo => {
+                    const vehicleItem = document.createElement("div");
+                    vehicleItem.classList.add("vehicle-item");
+                    vehicleItem.innerHTML = `
+                        <span><strong>Marca:</strong> ${vehiculo.marca}</span>
+                        <span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
+                        <span><strong>Año:</strong> ${vehiculo.anio}</span>
+                        <span><strong>Color:</strong> ${vehiculo.color}</span>
+                        <span><strong>Precio:</strong> ${vehiculo.precio}</span>
+                        <span><strong>Combustible:</strong> ${vehiculo.combustible}</span>
+                        <span><strong>País:</strong> ${vehiculo.pais}</span>
+                        <img src="${vehiculo.foto}" alt="Foto del vehículo" style="max-width: 100px; max-height: 100px;">
+                    `;
+                    vehicleList.appendChild(vehicleItem);
+                });
+            })
+            .catch(error => console.error('Error al cargar vehículos:', error));
     }
 
-    // Función para registrar un vehículo desde el iframe
+    // Función para registrar un vehículo en la base de datos
     function registrarVehiculo(vehiculo) {
-        vehiculos.push(vehiculo);
-        cargarVehiculos();
-        cerrarModal();
+        fetch('/api/vehiculos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(vehiculo)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                cargarVehiculos();
+                cerrarModal();
+                alert("Vehículo registrado con éxito.");
+            } else {
+                alert("Error al registrar el vehículo.");
+            }
+        })
+        .catch(error => {
+            console.error('Error al registrar el vehículo:', error);
+            alert("Ocurrió un error al registrar el vehículo.");
+        });
     }
 
     // Evento para recibir datos desde el iframe
     window.addEventListener("message", function(event) {
         if (event.data.action === "registrarVehiculo") {
             registrarVehiculo(event.data.vehiculo);
-            alert("Vehículo registrado con éxito.");
         }
     });
+
+    // Cargar los vehículos cuando se cargue la página
+    cargarVehiculos();
 </script>
 </body>
 </html>

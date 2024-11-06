@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class VehiculoServicios {
 
-    private final VehiculoRepositorio vehiculoRepositorio;
+     VehiculoRepositorio vehiculoRepositorio;
 
     public void registrarVehiculo(Vehiculo vehiculo) {
         vehiculoRepositorio.save(vehiculo);
@@ -20,8 +20,6 @@ public class VehiculoServicios {
     public List<Vehiculo> obtenerTodos() {
         return (List<Vehiculo>) vehiculoRepositorio.findAll();
     }
-
-
 
     public boolean borrar(Vehiculo vehiculo) {
         try {
