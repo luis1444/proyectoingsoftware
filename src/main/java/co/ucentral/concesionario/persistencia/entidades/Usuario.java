@@ -1,4 +1,5 @@
 package co.ucentral.concesionario.persistencia.entidades;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -19,7 +20,10 @@ public class Usuario {
     @Id
     @Column(name = "usu_usuario")
     public String usuario;
+
     @Column(name = "usu_contrasena")
     public String contrasena;
 
+    @Column(name = "usu_rol")
+    public String rol;
 }

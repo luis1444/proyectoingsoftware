@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Vehículo</title>
+    <style>
+        /* Estilo general para centrar y estilizar el contenedor */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        .form-group input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .button-submit {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button-submit:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h3>Registrar Vehículo</h3>
+    <form th:action="@{/registro-vehiculo}" th:object="${vehiculo}" method="post">
+        <div class="form-group">
+            <label for="marca">Marca:</label>
+            <input type="text" id="marca" th:field="*{marca}" placeholder="Ingrese la marca del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" th:field="*{modelo}" placeholder="Ingrese el modelo del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="anio">Año de Fabricación:</label>
+            <input type="number" id="anio" th:field="*{anio}" placeholder="Ingrese el año de fabricación" required>
+        </div>
+        <div class="form-group">
+            <label for="color">Color:</label>
+            <input type="text" id="color" th:field="*{color}" placeholder="Ingrese el color del vehículo" required>
+        </div>
+        <div class="form-group">
+            <label for="precio">Precio:</label>
+            <input type="text" id="precio" th:field="*{precio}" placeholder="Ingrese el precio" required>
+        </div>
+        <div class="form-group">
+            <label for="tipoCombustible">Tipo de Combustible:</label>
+            <input type="text" id="tipoCombustible" th:field="*{tipoCombustible}" placeholder="Ingrese el tipo de combustible" required>
+        </div>
+        <div class="form-group">
+            <label for="paisOrigen">País de Origen:</label>
+            <input type="text" id="paisOrigen" th:field="*{paisOrigen}" placeholder="Ingrese el país de origen" required>
+        </div>
+        <button type="submit" class="button-submit">Registrar</button>
+    </form>
+</div>
+</body>
+</html>
