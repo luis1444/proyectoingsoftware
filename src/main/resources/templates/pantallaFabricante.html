@@ -166,7 +166,7 @@
         <a href="#" class="button" onclick="abrirRegistro()">Registrar Vehículos</a>
         <a href="#" class="button" onclick="consultarPedidos()">Consultar Pedidos</a>
         <a href="#" class="button" onclick="verificarDisponibilidad()">Verificar Disponibilidad</a>
-        <a href="#" class="button" onclick="modificarCatalogo()">Modificar Catálogo</a>
+        <a href="#" class="button" onclick="abrirModificar()">Modificar Catálogo</a>
         <a href="#" class="button" onclick="entregarPedidos()">Entregar Pedidos</a>
     </div>
 
@@ -183,7 +183,7 @@
 <div class="iframe-modal" id="iframeModal">
     <div class="iframe-container">
         <button class="close-btn" onclick="cerrarModal()">X</button>
-        <iframe src="/registroVehiculo" id="registroIframe"></iframe>
+        <iframe id="iframeRegistro" src="" ></iframe>
     </div>
 </div>
 
@@ -195,10 +195,18 @@
 <script>
     function abrirRegistro() {
         document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/registroVehiculo"; // Abrir formulario de registro
+    }
+
+    function abrirModificar() {
+        // Aquí solo abrimos el modal y cargamos la URL para modificar vehículo
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/modificarVehiculo"; // Cambiar la URL para modificar
     }
 
     function cerrarModal() {
         document.getElementById("iframeModal").style.display = "none";
+        document.getElementById("iframeRegistro").src = ""; // Limpiar la URL del iframe al cerrar
     }
 
     document.getElementById("iframeModal").addEventListener("click", function(event) {
@@ -233,20 +241,6 @@
             })
             .catch(error => console.error('Error al cargar vehículos:', error));
     }
-
-    function mostrarMensajeExito() {
-        const successMessage = document.getElementById("successMessage");
-        successMessage.style.display = "block";
-        setTimeout(() => {
-            successMessage.style.display = "none";
-        }, 3000);
-    }
-
-    window.addEventListener("message", function(event) {
-        if (event.data.action === "registrarVehiculo") {
-            registrarVehiculo(event.data.vehiculo);
-        }
-    });
 
     cargarVehiculos();
 </script>
