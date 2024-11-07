@@ -43,5 +43,4 @@ public class Vehiculo {
     @Lob
     @Column(name = "veh_foto")
     private byte[] foto;
-
 }
