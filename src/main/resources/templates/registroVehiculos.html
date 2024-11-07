@@ -56,7 +56,7 @@
             font-size: 16px;
             font-weight: bold;
             color: #ffffff;
-            background-color: #007bff;
+            background-color: #009dff;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -70,7 +70,7 @@
 <body>
 <div class="form-container">
     <h3>Registrar Vehículo</h3>
-    <form th:action="@{/registroVehiculo}" th:object="${vehiculo}" method="post">
+    <form th:action="@{/registroVehiculo}" th:object="${vehiculo}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="marca">Marca:</label>
             <input type="text" id="marca" th:field="*{marca}" placeholder="Ingrese la marca del vehículo" required>
@@ -98,6 +98,11 @@
         <div class="form-group">
             <label for="paisOrigen">País de Origen:</label>
             <input type="text" id="paisOrigen" th:field="*{paisOrigen}" placeholder="Ingrese el país de origen" required>
+        </div>
+        <div class="form-group">
+            <label for="foto">Sube la Foto del Vehículo:</label>
+            <input type="file" id="foto" name="foto" accept="image/*" style="display: none;">
+            <label for="foto" class="button-submit">Sube la Foto del Vehículo</label>
         </div>
         <button type="submit" class="button-submit">Registrar</button>
     </form>
