@@ -70,7 +70,7 @@
 <body>
 <div class="form-container">
     <h3>Registrar Vehículo</h3>
-    <form th:action="@{/registro-vehiculo}" th:object="${vehiculo}" method="post">
+    <form th:action="@{/registroVehiculo}" th:object="${vehiculo}" method="post">
         <div class="form-group">
             <label for="marca">Marca:</label>
             <input type="text" id="marca" th:field="*{marca}" placeholder="Ingrese la marca del vehículo" required>
