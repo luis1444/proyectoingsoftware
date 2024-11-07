@@ -39,4 +39,9 @@ public class Vehiculo {
 
     @Column(name = "veh_pais_origen", nullable = false)
     private String paisOrigen;
+
+    @Lob
+    @Column(name = "veh_foto")
+    private byte[] foto;
+
 }

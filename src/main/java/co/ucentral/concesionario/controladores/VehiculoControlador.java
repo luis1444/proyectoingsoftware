@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +27,22 @@ public class VehiculoControlador {
     }
 
     @PostMapping("/registroVehiculo")
-    @ResponseBody // Asegúrate de que esta anotación esté presente para devolver solo el estado
-    public ResponseEntity<?> registrarVehiculo(@ModelAttribute Vehiculo vehiculo) {
+    public String registrarVehiculo(@ModelAttribute Vehiculo vehiculo, @RequestParam("foto") MultipartFile foto) {
+        if (!foto.isEmpty()) {
+            try {
+                // Convertir la imagen a un arreglo de bytes
+                byte[] fotoBytes = foto.getBytes();
+                // Asignar la foto al vehículo
+                vehiculo.setFoto(fotoBytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Si no se carga foto, manejarlo según sea necesario
+            System.out.println("No se ha cargado ninguna foto.");
+        }
         vehiculoServicios.registrarVehiculo(vehiculo);
-        return ResponseEntity.ok("Vehículo registrado con éxito");
+        return "redirect:/pantallaFabricante";
     }
     @GetMapping("/api/vehiculos")
     @ResponseBody

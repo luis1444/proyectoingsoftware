@@ -70,7 +70,8 @@
 <body>
 <div class="form-container">
     <h3>Registrar Vehículo</h3>
-    <form th:action="@{/registroVehiculo}" th:object="${vehiculo}" method="post">
+    <!-- Modificación: se agrega el atributo enctype para permitir la carga de archivos -->
+    <form th:action="@{/registroVehiculo}" th:object="${vehiculo}" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="marca">Marca:</label>
             <input type="text" id="marca" th:field="*{marca}" placeholder="Ingrese la marca del vehículo" required>
@@ -99,6 +100,12 @@
             <label for="paisOrigen">País de Origen:</label>
             <input type="text" id="paisOrigen" th:field="*{paisOrigen}" placeholder="Ingrese el país de origen" required>
         </div>
+        <!-- Campo para seleccionar la foto -->
+        <div class="form-group">
+            <label for="foto">Foto del Vehículo:</label>
+            <input type="file" id="foto" th:field="*{foto}" accept="image/*" required>
+        </div>
+
         <button type="submit" class="button-submit">Registrar</button>
     </form>
 </div>
