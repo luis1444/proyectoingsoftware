@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -21,11 +22,23 @@ public class PedidoControlador {
     @Autowired
     private VehiculoServicios vehiculoServicios;
 
-    @PostMapping
-    public String registrarPedido(@RequestParam Long vehiculoId, @RequestParam int cantidad) {
+    @PostMapping("/realizarPedido")
+    public String registrarPedido(@RequestParam Long vehiculoId,
+                                  @RequestParam int cantidad,
+                                  @RequestParam String cliente,
+                                  @RequestParam String pais) { // Agregar el parámetro 'pais'
         Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
         if (vehiculo != null) {
-            pedidoServicios.registrarPedido(vehiculo, cantidad);
+            // Crear un nuevo objeto Pedido y establecer sus propiedades
+            Pedido pedido = new Pedido();
+            pedido.setVehiculo(vehiculo);
+            pedido.setCantidad(cantidad);
+            pedido.setCliente(cliente);
+            pedido.setPais(pais); // Establecer el país
+            pedido.setFecha(LocalDate.now()); // Establecer la fecha actual
+            pedido.setEstado("Pendiente"); // Establecer un estado inicial
+
+            pedidoServicios.registrarPedido(pedido); // Asegúrate de que este método acepte un objeto Pedido
             return "redirect:/pedidos"; // Redirigir a la página de pedidos
         } else {
             throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculoId);
@@ -39,6 +52,14 @@ public class PedidoControlador {
         return "pedidos"; // Nombre de la plantilla Thymeleaf para mostrar los pedidos
     }
 
+    @GetMapping("/realizarPedido")
+    public String mostrarRealizarPedido(Model model) {
+        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos(); // Cargar vehículos para el formulario
+        model.addAttribute("vehiculos", vehiculos);
+        model.addAttribute("pedido", new Pedido()); // Crear un nuevo objeto Pedido
+        return "realizarPedido"; // Asegúrate de que este nombre coincida con tu plantilla
+    }
+
     @PutMapping("/{id}")
     public String actualizarEstado(@PathVariable Long id, @RequestParam String nuevoEstado) {
         pedidoServicios.actualizarEstado(id, nuevoEstado);
@@ -49,17 +70,5 @@ public class PedidoControlador {
     public String borrarPedido(@PathVariable Long id) {
         pedidoServicios.borrarPedido(id);
         return "redirect:/pedidos";
-    }
-
-    @GetMapping("/vehiculos")
-    public String obtenerVehiculos(Model model) {
-        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
-        model.addAttribute("vehiculos", vehiculos);
-        return "vehiculos"; // Plantilla Thymeleaf para mostrar los vehículos disponibles
-    }
-
-    @GetMapping("/realizarPedido")
-    public String mostrarRealizarPedido() {
-        return "realizarPedido";
     }
 }

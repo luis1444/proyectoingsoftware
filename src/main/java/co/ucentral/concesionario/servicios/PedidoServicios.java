@@ -17,12 +17,7 @@ public class PedidoServicios {
     PedidoRepositorio pedidoRepositorio;
 
     // Registrar un nuevo pedido
-    public void registrarPedido(Vehiculo vehiculo, int cantidad) {
-        Pedido pedido = new Pedido();
-        pedido.setVehiculo(vehiculo);
-        pedido.setCantidad(cantidad);
-        pedido.setFecha(LocalDate.now());
-        pedido.setEstado("Pendiente");
+    public void registrarPedido(Pedido pedido) {
         pedidoRepositorio.save(pedido);
     }
 

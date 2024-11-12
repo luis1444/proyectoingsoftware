@@ -36,4 +36,8 @@ public class Pedido {
 
     @Column(name = "ped_estado", nullable = false)
     private String estado;
+
+
+    @Column(name = "ped_pais", nullable = false) // Asegúrate de que esta columna exista en tu base de datos
+    private String pais;
 }
