@@ -61,5 +61,10 @@ public class UsuarioControlador {
         return "pantallaFabricante";
     }
 
+    @GetMapping("/pantallaAdministrador")
+    public String mostrarPantallaAdministrador(Model model) {
+        return "pantallaAdministrador";
+    }
+
 
 }
