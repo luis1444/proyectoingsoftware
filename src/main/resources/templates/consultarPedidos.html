@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Pedidos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .pedido-list {
+            width: 80%;
+            max-width: 900px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .pedido-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s;
+        }
+        .pedido-item:hover {
+            background-color: #e9ecef; /* Cambia el color de fondo al pasar el mouse */
+        }
+        .pedido-item h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #007bff; /* Color para el título */
+        }
+        .pedido-item p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .btn-cerrar {
+            background-color: #28a745; /* Color verde */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .btn-cerrar:hover {
+            background-color: #218838; /* Color verde oscuro al pasar el mouse */
+        }
+
+        /* Estilos para el modal */
+        #iframeModal {
+            display: none; /* Inicialmente oculto */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Asegúrate de que el modal esté por encima de otros elementos */
+        }
+        #iframeRegistro {
+            width: 80%;
+            height: 80%;
+            border: none;
+            border-radius: 10px; /* Bordes redondeados para el iframe */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra para el iframe */
+        }
+        .btn-cerrar-modal {
+            background-color: #dc3545; /* Color rojo */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            position: absolute; /* Posiciona el botón en la esquina superior derecha */
+            top: 20px;
+            right: 20px;
+        }
+        .btn-cerrar-modal:hover {
+            background-color: #c82333; /* Color rojo oscuro al pasar el mouse */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="pedido-list" id="pedidoList">
+        <!-- Aquí se cargarán los pedidos -->
+    </div>
+    <button class="btn-cerrar" onclick="consultarPedidos()">Consultar Pedidos</button>
+</div>
+
+<!-- Modal para mostrar el iframe -->
+<div id="iframeModal">
+    <iframe id="iframeRegistro"></iframe>
+    <button class="btn-cerrar-modal" onclick="cerrarModal()">Cerrar</button> <!-- Botón para cerrar el modal -->
+</div>
+
+<script>
+    // Función para cargar los pedidos
+    function cargarPedidos() {
+        const pedidoList = document.getElementById("pedidoList");
+        pedidoList.innerHTML = "";
+
+        fetch('/pedidos/consultarPedidos') // URL actualizada a la nueva API que devuelve JSON
+            .then(response => response.json())  // Convierte la respuesta en formato JSON
+            .then(pedidos => {
+                // Verifica que 'pedidos' sea un array antes de hacer el forEach
+                if (Array.isArray(pedidos)) {
+                    pedidos.forEach(pedido => {
+                        const pedidoItem = document.createElement("div");
+                        pedidoItem.classList.add("pedido-item");
+                        pedidoItem.innerHTML = `
+                            <div>
+                                <h3>Pedido #${pedido.id}</h3>
+                                <p><strong>Cliente:</strong> ${pedido.cliente}</p>
+                                <p><strong>Vehículo:</strong> ${pedido.vehiculo}</p>
+                                <p><strong>Fecha:</strong> ${pedido.fecha}</p>
+                                <p><strong>Estado:</strong> ${pedido.estado}</p>
+                            </div>
+                        `;
+                        pedidoList.appendChild(pedidoItem);
+                    });
+                } else {
+                    console.error('La respuesta no es un array:', pedidos);
+                }
+            })
+            .catch(error => console.error('Error al cargar los pedidos:', error));
+    }
+
+    // Función para mostrar el modal con el iframe
+    function consultarPedidos() {
+        const modal = document.getElementById("iframeModal");
+        const iframe = document.getElementById("iframeRegistro");
+
+        if (modal && iframe) {
+            modal.style.display = "flex"; // Mostrar el modal
+            iframe.src = "/pedidos/consultarPedidos"; // Ruta correcta
+        } else {
+            console.error("Modal o iframe no encontrado");
+        }
+    }
+
+    // Función para cerrar el modal
+    function cerrarModal() {
+        const modal = document.getElementById("iframeModal");
+        const iframe = document.getElementById("iframeRegistro");
+
+        if (modal) {
+            modal.style.display = "none"; // Ocultar el modal
+            iframe.src = ""; // Limpiar el src del iframe para detener la carga
+        }
+    }
+
+    // Añadir evento DOMContentLoaded para ejecutar cargarPedidos cuando la página esté completamente cargada
+    document.addEventListener('DOMContentLoaded', cargarPedidos);
+</script>
+</body>
+</html>

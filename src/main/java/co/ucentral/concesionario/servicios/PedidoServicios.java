@@ -15,13 +15,30 @@ import java.util.Optional;
 public class PedidoServicios {
 
     PedidoRepositorio pedidoRepositorio;
+    private final VehiculoServicios vehiculoServicios;
 
-    // Registrar un nuevo pedido
-    public void registrarPedido(Pedido pedido) {
+
+
+    public void registrarPedido(Long vehiculoId, int cantidad, String pais) {
+        // Verificar que el vehículo existe
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
+        if (vehiculo == null) {
+            throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculoId);
+        }
+
+        // Crear un nuevo pedido
+        Pedido pedido = new Pedido();
+        pedido.setVehiculo(vehiculo);
+        pedido.setCantidad(cantidad);
+        pedido.setPais(pais);
+        pedido.setFecha(LocalDate.now()); // Fecha actual
+        pedido.setEstado("Pendiente"); // Estado inicial
+
+        // Guardar el pedido
         pedidoRepositorio.save(pedido);
     }
 
-    // Obtener todos los pedidos
+
     public List<Pedido> obtenerTodos() {
         return pedidoRepositorio.findAll();
     }

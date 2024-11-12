@@ -22,26 +22,18 @@ public class PedidoControlador {
     @Autowired
     private VehiculoServicios vehiculoServicios;
 
-    @PostMapping("/realizarPedido")
+    @PostMapping("/registrarPedido")
     public String registrarPedido(@RequestParam Long vehiculoId,
                                   @RequestParam int cantidad,
-                                  @RequestParam String cliente,
-                                  @RequestParam String pais) { // Agregar el parámetro 'pais'
-        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
-        if (vehiculo != null) {
-            // Crear un nuevo objeto Pedido y establecer sus propiedades
-            Pedido pedido = new Pedido();
-            pedido.setVehiculo(vehiculo);
-            pedido.setCantidad(cantidad);
-            pedido.setCliente(cliente);
-            pedido.setPais(pais); // Establecer el país
-            pedido.setFecha(LocalDate.now()); // Establecer la fecha actual
-            pedido.setEstado("Pendiente"); // Establecer un estado inicial
-
-            pedidoServicios.registrarPedido(pedido); // Asegúrate de que este método acepte un objeto Pedido
-            return "redirect:/pedidos"; // Redirigir a la página de pedidos
-        } else {
-            throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculoId);
+                                  @RequestParam String pais,
+                                  Model model) {
+        try {
+            pedidoServicios.registrarPedido(vehiculoId, cantidad, pais);
+            model.addAttribute("mensaje", "Pedido registrado exitosamente");
+            return "pedido_exitoso"; // Página de éxito
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al registrar el pedido: " + e.getMessage());
+            return "pedido_error"; // Página de error
         }
     }
 
@@ -49,26 +41,20 @@ public class PedidoControlador {
     public String obtenerTodos(Model model) {
         List<Pedido> pedidos = pedidoServicios.obtenerTodos();
         model.addAttribute("pedidos", pedidos);
-        return "pedidos"; // Nombre de la plantilla Thymeleaf para mostrar los pedidos
+        return "pedidos";
     }
 
     @GetMapping("/realizarPedido")
     public String mostrarRealizarPedido(Model model) {
-        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos(); // Cargar vehículos para el formulario
+        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
         model.addAttribute("vehiculos", vehiculos);
-        model.addAttribute("pedido", new Pedido()); // Crear un nuevo objeto Pedido
-        return "realizarPedido"; // Asegúrate de que este nombre coincida con tu plantilla
+        return "realizarPedido"; // Asegúrate de que este nombre coincida con la plantilla HTML correcta
     }
 
-    @PutMapping("/{id}")
-    public String actualizarEstado(@PathVariable Long id, @RequestParam String nuevoEstado) {
-        pedidoServicios.actualizarEstado(id, nuevoEstado);
-        return "redirect:/pedidos"; // Redirigir a la página de pedidos actualizada
-    }
-
-    @DeleteMapping("/{id}")
-    public String borrarPedido(@PathVariable Long id) {
-        pedidoServicios.borrarPedido(id);
-        return "redirect:/pedidos";
+    @GetMapping("/consultarPedidos")
+    @ResponseBody
+    public List<Pedido> mostrarPedidos() {
+        return pedidoServicios.obtenerTodos();
     }
 }
+
