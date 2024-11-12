@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Realizar Pedido</title>
+    <style>
+        /* Estilo general para centrar y estilizar el contenedor */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .button-submit {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button-submit:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h3>Realizar Pedido de Importación</h3>
+    <form th:action="@{/pedidos/registrarPedido}" method="post">
+        <div class="form-group">
+            <label for="vehiculo">Seleccionar Vehículo:</label>
+            <select id="vehiculo" name="vehiculoId" required>
+                <option th:each="vehiculo : ${vehiculos}"
+                        th:value="${vehiculo.id}"
+                        th:text="${vehiculo.marca} + ' - ' + ${vehiculo.modelo} + ' (' + ${vehiculo.anio} + ')'">
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" name="cantidad" min="1" placeholder="Ingrese la cantidad" required>
+        </div>
+        <div class="form-group">
+            <label for="pais">País de Origen:</label>
+            <input type="text" id="pais" name="pais" placeholder="Ingrese el país de origen" required>
+        </div>
+        <button type="submit" class="button-submit">Enviar Pedido</button>
+    </form>
+</div>
+</body>
+</html>

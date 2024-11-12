@@ -20,12 +20,14 @@ public class VehiculoControlador {
 
     private final VehiculoServicios vehiculoServicios;
 
+    // Método para mostrar el formulario de registro
     @GetMapping("/registroVehiculo")
     public String mostrarFormularioDeRegistroVehiculo(Model model) {
         model.addAttribute("vehiculo", new Vehiculo());
         return "registroVehiculos";
     }
 
+    // Registrar vehículo (POST)
     @PostMapping("/registroVehiculo")
     public String registrarVehiculo(
             @RequestParam("marca") String marca,
@@ -47,14 +49,13 @@ public class VehiculoControlador {
         vehiculo.setTipoCombustible(tipoCombustible);
         vehiculo.setPaisOrigen(paisOrigen);
 
+        // Guardar la foto del vehículo
         if (!foto.isEmpty()) {
             try {
-                // Convertir el archivo MultipartFile a byte[] y asignarlo a la propiedad foto
                 byte[] fotoBytes = foto.getBytes();
-                vehiculo.setFoto(fotoBytes);  // Asignamos el byte[] directamente al campo foto
+                vehiculo.setFoto(fotoBytes);
             } catch (IOException e) {
-                e.printStackTrace();
-                model.addAttribute("errorMessage", "Error al procesar la foto");
+                model.addAttribute("errorMessage", "Error al procesar la foto.");
                 return "error";
             }
         } else {
@@ -62,8 +63,8 @@ public class VehiculoControlador {
             return "error";
         }
 
+        // Registrar el vehículo en la base de datos
         try {
-            // Guardar el vehículo en la base de datos
             vehiculoServicios.registrarVehiculo(vehiculo);
         } catch (Exception e) {
             model.addAttribute("errorMessage", "Error al guardar el vehículo: " + e.getMessage());
@@ -72,6 +73,8 @@ public class VehiculoControlador {
 
         return "redirect:/pantallaFabricante";
     }
+
+    // Obtener todos los vehículos (para API)
     @GetMapping("/api/vehiculos")
     @ResponseBody
     public List<Map<String, Object>> obtenerVehiculos() {
@@ -91,14 +94,87 @@ public class VehiculoControlador {
         }).toList();
     }
 
-    // Endpoint para registrar vehículos en formato JSON
-    @PostMapping("/api/vehiculos")
+    // Obtener vehículo por ID (para modificar)
+    @GetMapping("/api/vehiculos/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> registrarVehiculoAPI(@RequestBody Vehiculo vehiculo) {
-        vehiculoServicios.registrarVehiculo(vehiculo);
-        return ResponseEntity.ok(Map.of("success", "true"));
+    public ResponseEntity<Vehiculo> obtenerVehiculo(@PathVariable Long id) {
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(id);
+        if (vehiculo == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(vehiculo);
     }
 
+    // Actualizar un vehículo
+    @PutMapping("/api/vehiculos/{id}")
+    @ResponseBody
+    public ResponseEntity<String> actualizarVehiculo(@PathVariable Long id, @RequestBody Vehiculo vehiculo) {
+        Vehiculo vehiculoExistente = vehiculoServicios.obtenerPorId(id);
+        if (vehiculoExistente == null) {
+            return ResponseEntity.notFound().build();
+        }
 
+        vehiculo.setId(id); // Aseguramos que se actualice el vehículo con el ID especificado
+        vehiculoServicios.actualizarVehiculo(vehiculo);
+        return ResponseEntity.ok("Vehículo actualizado");
+    }
 
+    @PostMapping("/modificarVehiculo")
+    public String modificarVehiculo(@RequestParam Long id,
+                                    @RequestParam String marca,
+                                    @RequestParam String modelo,
+                                    @RequestParam int anio,
+                                    @RequestParam String color,
+                                    @RequestParam double precio,
+                                    @RequestParam String tipoCombustible,
+                                    @RequestParam String paisOrigen,
+                                    Model model) {
+
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(id);
+        if (vehiculo == null) {
+            model.addAttribute("errorMessage", "Vehículo no encontrado.");
+            return "error";
+        }
+
+        // Actualiza los datos del vehículo
+        vehiculo.setMarca(marca);
+        vehiculo.setModelo(modelo);
+        vehiculo.setAnio(anio);
+        vehiculo.setColor(color);
+        vehiculo.setPrecio(precio);
+        vehiculo.setTipoCombustible(tipoCombustible);
+        vehiculo.setPaisOrigen(paisOrigen);
+
+        vehiculoServicios.actualizarVehiculo(vehiculo);
+
+        return "redirect:/pantallaFabricante";  // Redirige al listado o a otra página de éxito
+    }
+
+    // Eliminar un vehículo
+    @DeleteMapping("/eliminarVehiculo/{id}")
+    @ResponseBody
+    public ResponseEntity<String> eliminarVehiculo(@PathVariable Long id) {
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(id);
+        if (vehiculo == null) {
+            return ResponseEntity.notFound().build();  // Vehículo no encontrado
+        }
+
+        vehiculoServicios.borrar(vehiculo);  // Eliminar el vehículo
+        return ResponseEntity.ok("Vehículo eliminado");  // Confirmar que se eliminó
+    }
+
+    // Página de eliminación (POST)
+    @PostMapping("/eliminarVehiculo")
+    public String eliminarVehiculoPost(@RequestParam Long id) {
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(id);
+        if (vehiculo != null) {
+            vehiculoServicios.borrar(vehiculo);
+        }
+        return "redirect:/vehiculos";  // Redirige al listado de vehículos
+    }
+
+    @GetMapping("/modificarVehiculo")
+    public String mostrarModificarVehiculo() {
+        return "modificarVehiculo"; // Asegúrate de tener un archivo .html correspondiente en resources/templates
+    }
 }

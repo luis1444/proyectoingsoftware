@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modificar Vehículo</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .form-container h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        .form-group input {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .button-submit {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button-submit:hover {
+            background-color: #0056b3;
+        }
+        .button-disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h3>Modificar Vehículo</h3>
+    <form th:action="@{/modificarVehiculo}" method="post">
+        <!-- Campo para ingresar el ID -->
+        <div class="form-group">
+            <label for="id">ID del Vehículo:</label>
+            <input type="number" id="id" name="id" placeholder="Ingrese el ID del vehículo" required>
+            <button type="button" id="buscarBtn" onclick="buscarVehiculo()">Buscar</button>
+        </div>
+
+        <!-- Campos del vehículo (deshabilitados inicialmente) -->
+        <div class="form-group">
+            <label for="marca">Marca:</label>
+            <input type="text" id="marca" name="marca" placeholder="Marca" disabled>
+        </div>
+        <div class="form-group">
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" name="modelo" placeholder="Modelo" disabled>
+        </div>
+        <div class="form-group">
+            <label for="anio">Año de Fabricación:</label>
+            <input type="number" id="anio" name="anio" placeholder="Año de fabricación" disabled>
+        </div>
+        <div class="form-group">
+            <label for="color">Color:</label>
+            <input type="text" id="color" name="color" placeholder="Color" disabled>
+        </div>
+        <div class="form-group">
+            <label for="precio">Precio:</label>
+            <input type="text" id="precio" name="precio" placeholder="Precio" disabled>
+        </div>
+        <div class="form-group">
+            <label for="tipoCombustible">Tipo de Combustible:</label>
+            <input type="text" id="tipoCombustible" name="tipoCombustible" placeholder="Tipo de Combustible" disabled>
+        </div>
+        <div class="form-group">
+            <label for="paisOrigen">País de Origen:</label>
+            <input type="text" id="paisOrigen" name="paisOrigen" placeholder="País de Origen" disabled>
+        </div>
+
+        <!-- Botón para eliminar -->
+        <button type="button" class="button-submit" id="eliminarBtn" onclick="eliminarVehiculo()" disabled>Eliminar</button>
+
+        <!-- Botón para guardar los cambios -->
+        <button type="submit" class="button-submit" id="guardarBtn" disabled>Guardar Cambios</button>
+    </form>
+</div>
+
+<script>
+    // Función para buscar el vehículo por ID
+    function buscarVehiculo() {
+        var id = document.getElementById("id").value;
+        if (id) {
+            // Hacer una solicitud para obtener el vehículo por su ID (simulado en este caso)
+            fetch(`/api/vehiculos/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // Llenar los campos con la información del vehículo
+                        document.getElementById("marca").value = data.marca;
+                        document.getElementById("modelo").value = data.modelo;
+                        document.getElementById("anio").value = data.anio;
+                        document.getElementById("color").value = data.color;
+                        document.getElementById("precio").value = data.precio;
+                        document.getElementById("tipoCombustible").value = data.tipoCombustible;
+                        document.getElementById("paisOrigen").value = data.paisOrigen;
+
+                        // Habilitar los campos de modificación
+                        document.querySelectorAll("input").forEach(input => {
+                            input.disabled = false;
+                        });
+                        document.getElementById("eliminarBtn").disabled = false;
+                        document.getElementById("guardarBtn").disabled = false;
+                    } else {
+                        alert("Vehículo no encontrado.");
+                    }
+                });
+        }
+    }
+
+    // Función para eliminar el vehículo
+    function eliminarVehiculo() {
+        var id = document.getElementById("id").value;
+        if (id) {
+            // Hacer una solicitud para eliminar el vehículo (utilizando POST)
+            fetch(`/eliminarVehiculo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    id: id  // Enviar el ID del vehículo a eliminar
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Vehículo eliminado");
+                    // Redirigir a la pantalla del fabricante después de eliminar
+                    window.location.href = "/pantallaFabricante";  // Redirige a la pantalla del fabricante
+                } else {
+                    alert("No se pudo eliminar el vehículo.");
+                }
+            })
+            .catch(error => {
+                alert("Error al eliminar el vehículo: " + error.message);
+            });
+        }
+    }
+</script>
+</body>
+</html>
