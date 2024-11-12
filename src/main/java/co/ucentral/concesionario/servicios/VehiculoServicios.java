@@ -54,4 +54,7 @@ public class VehiculoServicios {
             throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculo.getId());
         }
     }
+    public List<Vehiculo> obtenerTodosLosVehiculos() {
+        return vehiculoRepositorio.findAll();
+    }
 }

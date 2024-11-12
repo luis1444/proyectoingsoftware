@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehículos Disponibles</title>
+</head>
+<body>
+<h1>Vehículos Disponibles</h1>
+<div id="vehiculos-lista">
+    <ul>
+        <!-- Recorremos la lista de vehículos añadidos por el fabricante -->
+        <li th:each="vehiculo : ${vehiculos}">
+            <p><strong>Nombre:</strong> <span th:text="${vehiculo.nombre}">Nombre del vehículo</span></p>
+            <p><strong>Modelo:</strong> <span th:text="${vehiculo.modelo}">Modelo del vehículo</span></p>
+            <!-- Aquí puedes agregar más detalles del vehículo según tus necesidades -->
+        </li>
+    </ul>
+</div>
+</body>
+</html>
+
