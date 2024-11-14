@@ -52,9 +52,10 @@ public class PedidoControlador {
     }
 
     @GetMapping("/consultarPedidos")
-    @ResponseBody
-    public List<Pedido> mostrarPedidos() {
-        return pedidoServicios.obtenerTodos();
+    public String mostrarPedidos(Model model) {
+        List<Pedido> pedidos = pedidoServicios.obtenerTodos();
+        model.addAttribute("pedidos", pedidos);
+        return "consultarPedidos"; // Nombre de la plantilla HTML que mostrarás
     }
 }
 

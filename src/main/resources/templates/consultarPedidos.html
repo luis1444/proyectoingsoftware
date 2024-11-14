@@ -1,182 +1,139 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultar Pedidos</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
+            background-color: #e3f2fd; /* Azul muy claro */
             color: #333;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .pedido-list {
-            width: 80%;
-            max-width: 900px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        .pedido-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background-color: #f8f9fa;
-            transition: background-color 0.3s;
-        }
-        .pedido-item:hover {
-            background-color: #e9ecef; /* Cambia el color de fondo al pasar el mouse */
-        }
-        .pedido-item h3 {
             margin: 0;
-            font-size: 18px;
-            color: #007bff; /* Color para el título */
-        }
-        .pedido-item p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .btn-cerrar {
-            background-color: #28a745; /* Color verde */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        .btn-cerrar:hover {
-            background-color: #218838; /* Color verde oscuro al pasar el mouse */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Estilos para el modal */
-        #iframeModal {
-            display: none; /* Inicialmente oculto */
+        /* Overlay para el modal */
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente */
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* Asegúrate de que el modal esté por encima de otros elementos */
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0.3s, opacity 0.3s;
         }
-        #iframeRegistro {
-            width: 80%;
-            height: 80%;
-            border: none;
-            border-radius: 10px; /* Bordes redondeados para el iframe */
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra para el iframe */
+
+        .overlay.hidden {
+            visibility: hidden;
+            opacity: 0;
         }
-        .btn-cerrar-modal {
-            background-color: #dc3545; /* Color rojo */
-            color: white;
+
+        .container {
+            background-color: #fff; /* Fondo blanco */
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 700px;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #0277bd; /* Azul claro */
+        }
+
+        .pedido-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pedido-item {
+            background-color: #bbdefb; /* Azul claro */
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #90caf9; /* Azul un poco más oscuro */
+        }
+
+        .pedido-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #01579b; /* Azul oscuro */
+        }
+
+        .pedido-item p {
+            font-size: 1rem;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .btn-cerrar {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #0277bd; /* Azul */
             border: none;
             border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
             cursor: pointer;
-            position: absolute; /* Posiciona el botón en la esquina superior derecha */
-            top: 20px;
-            right: 20px;
+            transition: background-color 0.3s ease;
         }
-        .btn-cerrar-modal:hover {
-            background-color: #c82333; /* Color rojo oscuro al pasar el mouse */
+
+        .btn-cerrar:hover {
+            background-color: #01579b; /* Azul más oscuro */
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="pedido-list" id="pedidoList">
-        <!-- Aquí se cargarán los pedidos -->
+<div class="overlay" id="modal-overlay">
+    <div class="container">
+        <h1>Lista de Pedidos</h1>
+        <div class="pedido-list">
+            <!-- Aquí se cargarán los pedidos -->
+            <div th:each="pedido : ${pedidos}" class="pedido-item">
+                <h3>Pedido #<span th:text="${pedido.id}"></span></h3>
+                <p><strong>Vehículo:</strong>
+                    <span th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo} + ' (' + ${pedido.vehiculo.anio} + ')'"></span>
+                </p>
+                <p><strong>Color:</strong> <span th:text="${pedido.vehiculo.color}"></span></p>
+                <p><strong>Precio Unitario:</strong>
+                    <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio, 2, 2)}"></span>
+                </p>
+                <p><strong>Cantidad:</strong> <span th:text="${pedido.cantidad}"></span></p>
+                <p><strong>Precio Final:</strong>
+                    <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio * pedido.cantidad, 2, 2)}"></span>
+                </p>
+                <p><strong>Tipo de Combustible:</strong> <span th:text="${pedido.vehiculo.tipoCombustible}"></span></p>
+                <p><strong>Fecha:</strong> <span th:text="${pedido.fecha}"></span></p>
+                <p><strong>Estado:</strong> <span th:text="${pedido.estado}"></span></p>
+                <p><strong>País:</strong> <span th:text="${pedido.pais}"></span></p>
+            </div>
+        </div>
+        <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
     </div>
-    <button class="btn-cerrar" onclick="consultarPedidos()">Consultar Pedidos</button>
-</div>
-
-<!-- Modal para mostrar el iframe -->
-<div id="iframeModal">
-    <iframe id="iframeRegistro"></iframe>
-    <button class="btn-cerrar-modal" onclick="cerrarModal()">Cerrar</button> <!-- Botón para cerrar el modal -->
 </div>
 
 <script>
-    // Función para cargar los pedidos
-    function cargarPedidos() {
-        const pedidoList = document.getElementById("pedidoList");
-        pedidoList.innerHTML = "";
-
-        fetch('/pedidos/consultarPedidos') // URL actualizada a la nueva API que devuelve JSON
-            .then(response => response.json())  // Convierte la respuesta en formato JSON
-            .then(pedidos => {
-                // Verifica que 'pedidos' sea un array antes de hacer el forEach
-                if (Array.isArray(pedidos)) {
-                    pedidos.forEach(pedido => {
-                        const pedidoItem = document.createElement("div");
-                        pedidoItem.classList.add("pedido-item");
-                        pedidoItem.innerHTML = `
-                            <div>
-                                <h3>Pedido #${pedido.id}</h3>
-                                <p><strong>Cliente:</strong> ${pedido.cliente}</p>
-                                <p><strong>Vehículo:</strong> ${pedido.vehiculo}</p>
-                                <p><strong>Fecha:</strong> ${pedido.fecha}</p>
-                                <p><strong>Estado:</strong> ${pedido.estado}</p>
-                            </div>
-                        `;
-                        pedidoList.appendChild(pedidoItem);
-                    });
-                } else {
-                    console.error('La respuesta no es un array:', pedidos);
-                }
-            })
-            .catch(error => console.error('Error al cargar los pedidos:', error));
-    }
-
-    // Función para mostrar el modal con el iframe
-    function consultarPedidos() {
-        const modal = document.getElementById("iframeModal");
-        const iframe = document.getElementById("iframeRegistro");
-
-        if (modal && iframe) {
-            modal.style.display = "flex"; // Mostrar el modal
-            iframe.src = "/pedidos/consultarPedidos"; // Ruta correcta
-        } else {
-            console.error("Modal o iframe no encontrado");
-        }
-    }
-
-    // Función para cerrar el modal
     function cerrarModal() {
-        const modal = document.getElementById("iframeModal");
-        const iframe = document.getElementById("iframeRegistro");
-
-        if (modal) {
-            modal.style.display = "none"; // Ocultar el modal
-            iframe.src = ""; // Limpiar el src del iframe para detener la carga
-        }
+        const overlay = document.getElementById('modal-overlay');
+        overlay.classList.add('hidden');
     }
-
-    // Añadir evento DOMContentLoaded para ejecutar cargarPedidos cuando la página esté completamente cargada
-    document.addEventListener('DOMContentLoaded', cargarPedidos);
 </script>
 </body>
 </html>
