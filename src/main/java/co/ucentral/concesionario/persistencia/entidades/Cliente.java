@@ -1,12 +1,19 @@
 package co.ucentral.concesionario.persistencia.entidades;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Cliente {
+    @Id
     private Long id;
     private String vehicleId;
     private String nombreCliente;
@@ -16,5 +23,6 @@ public class Cliente {
     private String direccionEntrega;
     private String formaPago;
     private LocalDate fechaEntregaDeseada;
+
 
 }

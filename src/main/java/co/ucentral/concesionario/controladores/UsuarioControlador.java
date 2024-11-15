@@ -66,5 +66,6 @@ public class UsuarioControlador {
         return "pantallaAdministrador";
     }
 
-
+    @GetMapping("/pantallaCliente")
+    public String mostrarPantallaCliente(Model model) {return "Cliente.html";}
 }

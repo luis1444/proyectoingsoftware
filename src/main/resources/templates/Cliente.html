@@ -116,6 +116,35 @@
 <div class="footer">
     <p>&copy; 2024 Concesionario. </p>
 </div>
+<script>
+function cargarVehiculos() {
+const vehicleList = document.getElementById("vehicleList");
+vehicleList.innerHTML = "";
 
+fetch('/api/vehiculos')
+.then(response => response.json())
+.then(vehiculos => {
+const ultimosVehiculos = vehiculos.slice(-3);
+ultimosVehiculos.forEach(vehiculo => {
+const vehicleItem = document.createElement("div");
+vehicleItem.classList.add("vehicle-item");
+vehicleItem.innerHTML = `
+<span><strong>Marca:</strong> ${vehiculo.marca}</span>
+<span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
+<span><strong>Año:</strong> ${vehiculo.anio}</span>
+<span><strong>Color:</strong> ${vehiculo.color}</span>
+<span><strong>Precio:</strong> ${vehiculo.precio}</span>
+<span><strong>Combustible:</strong> ${vehiculo.tipoCombustible}</span>
+<span><strong>País:</strong> ${vehiculo.paisOrigen}</span>
+${vehiculo.foto ? `<img src="${vehiculo.foto}" alt="Foto del vehículo">` : ''}
+`;
+vehicleList.appendChild(vehicleItem);
+});
+})
+.catch(error => console.error('Error al cargar vehículos:', error));
+}
+
+cargarVehiculos();
+</script>
 </body>
 </html>
