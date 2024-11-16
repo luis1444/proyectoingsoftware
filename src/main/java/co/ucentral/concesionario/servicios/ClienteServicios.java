@@ -11,7 +11,15 @@ import java.util.Optional;
 @Service
 public class ClienteServicios {
 
+    ClienteRepositorio clienteRepositorio;
 
+
+    public Cliente registrarReserva(Cliente cliente) {
+        return clienteRepositorio.save(cliente);
+    }
+    public List<Cliente> obtenerTodosLosClientes() {
+        return clienteRepositorio.findAll();
+    }
 
 
 
