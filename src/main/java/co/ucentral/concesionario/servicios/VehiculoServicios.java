@@ -19,6 +19,7 @@ public class VehiculoServicios {
     }
 
     public List<Vehiculo> obtenerTodos() {
+
         return (List<Vehiculo>) vehiculoRepositorio.findAll();
     }
 
@@ -52,6 +53,15 @@ public class VehiculoServicios {
             vehiculoRepositorio.save(vehiculoActualizado);
         } else {
             throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculo.getId());
+        }
+    }
+    public void fabricarVehiculos(Long idVehiculo, int cantidad) {
+        Vehiculo vehiculo = obtenerPorId(idVehiculo);
+        if (vehiculo != null) {
+            vehiculo.setCantidadStock(vehiculo.getCantidadStock() + cantidad);
+            vehiculoRepositorio.save(vehiculo);
+        } else {
+            throw new IllegalArgumentException("Vehículo no encontrado.");
         }
     }
 }

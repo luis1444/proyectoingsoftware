@@ -29,7 +29,7 @@
         /* Barra lateral */
         .sidebar {
             width: 250px;
-            background-color: #2a3f54; /* Color original */
+            background-color: #2a3f54;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -45,7 +45,7 @@
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            background-color: #1abc9c; /* Verde original */
+            background-color: #1abc9c;
             color: #ffffff;
             text-align: center;
             border-radius: 8px;
@@ -66,7 +66,7 @@
             overflow-y: auto;
         }
         .catalog {
-            background-color: #2a3f54; /* Color original */
+            background-color: #2a3f54;
             color: #ffffff;
             border-radius: 10px;
             padding: 15px;
@@ -135,7 +135,7 @@
         .close-btn:hover {
             background-color: #cc0000;
         }
-        /* /* Estilo para el mensaje de éxito */
+        /* Estilo para el mensaje de éxito */
         .success-message {
             display: none;
             position: fixed;
@@ -189,7 +189,7 @@
 
 <!-- Mensaje de éxito -->
 <div class="success-message" id="successMessage">
-    ¡Vehículo registrado con éxito!
+    ¡Acción realizada con éxito!
 </div>
 
 <script>
@@ -200,12 +200,12 @@
 
     function abrirModificar() {
         document.getElementById("iframeModal").style.display = "flex";
-        document.getElementById("iframeRegistro").src = "/modificarVehiculo"; // Cambiar la URL para modificar
+        document.getElementById("iframeRegistro").src = "/modificarVehiculo";
     }
 
     function cerrarModal() {
         document.getElementById("iframeModal").style.display = "none";
-        document.getElementById("iframeRegistro").src = ""; // Limpiar la URL del iframe al cerrar
+        document.getElementById("iframeRegistro").src = "";
     }
 
     document.getElementById("iframeModal").addEventListener("click", function(event) {
@@ -213,6 +213,17 @@
             cerrarModal();
         }
     });
+
+    function verificarDisponibilidad() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/verificarDisponibilidad";
+    }
+
+
+    function consultarPedidos() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/consultarPedidos";
+    }
 
     function cargarVehiculos() {
         const vehicleList = document.getElementById("vehicleList");
@@ -239,27 +250,6 @@
                 });
             })
             .catch(error => console.error('Error al cargar vehículos:', error));
-    }
-
-   function consultarPedidos() {
-    // Asegúrate de que document esté disponible
-    const modal = document.getElementById("iframeModal");
-    const iframe = document.getElementById("iframeRegistro");
-
-    if (modal && iframe) {
-        modal.style.display = "flex";
-        iframe.src = "/pedidos/consultarPedidos";
-    } else {
-        console.error("Modal or iframe not found");
-    }
-}
-
-    function verificarDisponibilidad() {
-        alert('Función para verificar disponibilidad aún no implementada.');
-    }
-
-    function entregarPedidos() {
-        alert('Función para entregar pedidos aún no implementada.');
     }
 
     cargarVehiculos();

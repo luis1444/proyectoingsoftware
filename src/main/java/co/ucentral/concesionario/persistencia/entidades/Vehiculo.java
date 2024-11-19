@@ -43,4 +43,7 @@ public class Vehiculo {
     @Lob
     @Column(name = "veh_foto")
     private byte[] foto;
+
+    @Column(name = "veh_cantidad_stock", nullable = false)
+    private int cantidadStock = 0;
 }
