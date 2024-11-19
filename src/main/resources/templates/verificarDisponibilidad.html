@@ -30,20 +30,33 @@
         }
         .form-container {
             margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px; /* Espaciado entre los elementos */
+            align-items: center;
         }
         select, input[type="number"] {
-            padding: 5px;
-            margin-right: 10px;
+            padding: 8px;
+            font-size: 14px;
         }
         button {
-            padding: 10px;
-            background-color: #2a3f54;
+            padding: 10px 15px;
+            background-color: #1abc9c; /* Nuevo color para el botón */
             color: white;
             border: none;
             cursor: pointer;
+            font-size: 16px;
         }
         button:hover {
-            background-color: #1f2a36;
+            background-color: #16a085; /* Sutil cambio de color al pasar el cursor */
+        }
+        img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+        }
+        label {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -54,6 +67,7 @@
 <table>
     <thead>
     <tr>
+        <th>Foto</th>
         <th>Modelo</th>
         <th>Marca</th>
         <th>Año</th>
@@ -62,27 +76,15 @@
     </tr>
     </thead>
     <tbody id="disponibilidadTable">
-    <!-- Aquí se llenará dinámicamente la tabla con Thymeleaf -->
-    <tr th:each="item : ${disponibilidad}">
-        <td th:text="${item.modelo}"></td>
-        <td th:text="${item.marca}"></td>
-        <td th:text="${item.anio}"></td>
-        <td th:text="${item.precio}"></td>
-        <td th:text="${item.stock}"></td>
-    </tr>
+    <!-- Aquí se llenará dinámicamente la tabla con los datos obtenidos del backend -->
     </tbody>
 </table>
 
 <!-- Formulario para fabricar vehículos -->
 <div class="form-container">
-    <h2>Fabricar Vehículos</h2>
     <label for="vehiculoSelect">Seleccionar vehículo:</label>
     <select id="vehiculoSelect" required>
-        <!-- Aquí se llenará dinámicamente el select con Thymeleaf -->
-        <option th:each="item : ${disponibilidad}"
-                th:value="${item.id}"
-                th:text="${item.modelo + ' (' + item.marca + ')'}">
-        </option>
+        <!-- Aquí se llenará dinámicamente el selector con los datos obtenidos del backend -->
     </select>
 
     <label for="cantidadVehiculos">Cantidad a fabricar:</label>
@@ -93,29 +95,6 @@
 
 <script>
     // Cargar datos de disponibilidad desde el backend y llenar la tabla y el selector
-    fetch('/api/disponibilidad')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById('disponibilidadTable');
-            const select = document.getElementById('vehiculoSelect');
-
-            data.forEach(item => {
-                // Agregar filas a la tabla
-                const row = `<tr>
-                    <td>${item.modelo}</td>
-                    <td>${item.marca}</td>
-                    <td>${item.anio}</td>
-                    <td>${item.precio}</td>
-                    <td>${item.stock}</td>
-                </tr>`;
-                tableBody.insertAdjacentHTML('beforeend', row);
-
-                // Agregar opciones al selector
-                const option = `<option value="${item.id}">${item.modelo} (${item.marca})</option>`;
-                select.insertAdjacentHTML('beforeend', option);
-            });
-        })
-        .catch(error => console.error('Error al cargar la disponibilidad:', error));
 
     // Manejo del formulario para fabricar vehículos
     document.getElementById('fabricarBtn').addEventListener('click', () => {

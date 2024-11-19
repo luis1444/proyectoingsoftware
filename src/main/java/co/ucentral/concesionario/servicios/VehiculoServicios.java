@@ -15,6 +15,7 @@ public class VehiculoServicios {
     VehiculoRepositorio vehiculoRepositorio;
 
     public void registrarVehiculo(Vehiculo vehiculo) {
+
         vehiculoRepositorio.save(vehiculo);
     }
 
@@ -56,12 +57,26 @@ public class VehiculoServicios {
         }
     }
     public void fabricarVehiculos(Long idVehiculo, int cantidad) {
+        System.out.println("Buscando vehículo con ID: " + idVehiculo);
+
         Vehiculo vehiculo = obtenerPorId(idVehiculo);
-        if (vehiculo != null) {
-            vehiculo.setCantidadStock(vehiculo.getCantidadStock() + cantidad);
-            vehiculoRepositorio.save(vehiculo);
-        } else {
-            throw new IllegalArgumentException("Vehículo no encontrado.");
+        if (vehiculo == null) {
+            System.out.println("Vehículo no encontrado.");
+            throw new IllegalArgumentException("Vehículo con ID " + idVehiculo + " no encontrado.");
         }
+
+        System.out.println("Vehículo encontrado: " + vehiculo);
+
+        if (cantidad <= 0) {
+            System.out.println("Cantidad no válida: " + cantidad);
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
+        }
+
+        vehiculo.setCantidadStock(vehiculo.getCantidadStock() + cantidad);
+        System.out.println("Nueva cantidad en stock: " + vehiculo.getCantidadStock());
+
+        vehiculoRepositorio.save(vehiculo);
+        System.out.println("Vehículo actualizado correctamente.");
     }
+
 }
