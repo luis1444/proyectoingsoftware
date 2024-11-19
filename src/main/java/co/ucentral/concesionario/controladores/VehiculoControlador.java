@@ -3,6 +3,7 @@ package co.ucentral.concesionario.controladores;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -213,18 +214,41 @@ public class VehiculoControlador {
     @PostMapping("/api/fabricarVehiculos")
     @ResponseBody
     public ResponseEntity<String> fabricarVehiculos(@RequestBody Map<String, Object> request) {
-        // Extraemos los valores del mapa
-        Long idVehiculo = Long.valueOf(request.get("idVehiculo").toString());  // Extrae y convierte el idVehiculo a Long
-        int cantidad = (int) request.get("cantidad");  // Extrae la cantidad y la convierte a int
-
-        // Llamamos al servicio con ambos parámetros
         try {
+            // Validar y extraer idVehiculo
+            if (!request.containsKey("idVehiculo") || request.get("idVehiculo") == null) {
+                return ResponseEntity.badRequest().body("Error: idVehiculo es obligatorio.");
+            }
+            Long idVehiculo = Long.valueOf(request.get("idVehiculo").toString()); // Convertir a Long
+
+            // Validar y extraer cantidad
+            if (!request.containsKey("cantidad") || request.get("cantidad") == null) {
+                return ResponseEntity.badRequest().body("Error: cantidad es obligatoria.");
+            }
+            int cantidad;
+            try {
+                cantidad = Integer.parseInt(request.get("cantidad").toString());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Error: cantidad debe ser un número entero válido.");
+            }
+
+            if (cantidad <= 0) {
+                return ResponseEntity.badRequest().body("Error: cantidad debe ser mayor a 0.");
+            }
+
+            // Llamamos al servicio para fabricar vehículos
             vehiculoServicios.fabricarVehiculos(idVehiculo, cantidad);
-            return ResponseEntity.ok("Vehículos fabricados y stock actualizado.");
+
+            return ResponseEntity.ok("Vehículos fabricados y stock actualizado correctamente.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            // Para errores inesperados
+            e.printStackTrace(); // Solo para debug
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
         }
     }
+
 
 
 }
