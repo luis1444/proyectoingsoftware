@@ -41,6 +41,7 @@ public class Vehiculo {
     private String paisOrigen;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "veh_foto")
     private byte[] foto;
 
