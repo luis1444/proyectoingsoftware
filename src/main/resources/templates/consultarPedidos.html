@@ -8,13 +8,14 @@
         /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
-            background-color: #e3f2fd; /* Azul muy claro */
+            background-color: #ffffff; /* Fondo blanco */
             color: #333;
             margin: 0;
-            height: 100vh;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
         }
 
         /* Overlay para el modal */
@@ -39,68 +40,54 @@
         }
 
         .container {
-            background-color: #fff; /* Fondo blanco */
+            background-color: #ffffff; /* Fondo blanco */
             color: #333;
-            padding: 20px;
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             width: 90%;
-            max-width: 700px;
+            max-width: 800px;
             overflow-y: auto;
             max-height: 80vh;
+            border: 1px solid #ddd;
         }
 
         h1 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
+            font-size: 2rem;
+            margin-bottom: 25px;
             text-align: center;
-            color: #0277bd; /* Azul claro */
+            color: #2a3f54; /* Color secundario */
         }
 
         .pedido-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 20px;
         }
 
         .pedido-item {
-            background-color: #bbdefb; /* Azul claro */
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #90caf9; /* Azul un poco más oscuro */
+            background-color: #f0f4f8; /* Fondo suave */
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .pedido-item h3 {
-            font-size: 1.2rem;
-            margin-bottom: 8px;
-            color: #01579b; /* Azul oscuro */
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: #2a3f54; /* Color oscuro */
         }
 
         .pedido-item p {
             font-size: 1rem;
             margin: 5px 0;
-            color: #333;
-        }
-
-        .btn-cerrar {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 20px;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #0277bd; /* Azul */
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-cerrar:hover {
-            background-color: #01579b; /* Azul más oscuro */
+            color: #555;
         }
     </style>
 </head>
 <body>
+
 <div class="overlay" id="modal-overlay">
     <div class="container">
         <h1>Lista de Pedidos</h1>
@@ -108,32 +95,23 @@
             <!-- Aquí se cargarán los pedidos -->
             <div th:each="pedido : ${pedidos}" class="pedido-item">
                 <h3>Pedido #<span th:text="${pedido.id}"></span></h3>
-                <p><strong>Vehículo:</strong>
-                    <span th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo} + ' (' + ${pedido.vehiculo.anio} + ')'"></span>
-                </p>
+                <p><strong>Vehículo:</strong> <span th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo} + ' (' + ${pedido.vehiculo.anio} + ')'"></span></p>
                 <p><strong>Color:</strong> <span th:text="${pedido.vehiculo.color}"></span></p>
-                <p><strong>Precio Unitario:</strong>
-                    <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio, 2, 2)}"></span>
-                </p>
+                <p><strong>Precio Unitario:</strong> <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio, 2, 2)}"></span></p>
                 <p><strong>Cantidad:</strong> <span th:text="${pedido.cantidad}"></span></p>
-                <p><strong>Precio Final:</strong>
-                    <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio * pedido.cantidad, 2, 2)}"></span>
-                </p>
+                <p><strong>Precio Final:</strong> <span th:text="${#numbers.formatDecimal(pedido.vehiculo.precio * pedido.cantidad, 2, 2)}"></span></p>
                 <p><strong>Tipo de Combustible:</strong> <span th:text="${pedido.vehiculo.tipoCombustible}"></span></p>
                 <p><strong>Fecha:</strong> <span th:text="${pedido.fecha}"></span></p>
                 <p><strong>Estado:</strong> <span th:text="${pedido.estado}"></span></p>
                 <p><strong>País:</strong> <span th:text="${pedido.pais}"></span></p>
             </div>
         </div>
-        <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
     </div>
 </div>
 
 <script>
-    function cerrarModal() {
-        const overlay = document.getElementById('modal-overlay');
-        overlay.classList.add('hidden');
-    }
+    // La función cerrarModal ya no es necesaria porque eliminamos el botón de cerrar
 </script>
+
 </body>
 </html>

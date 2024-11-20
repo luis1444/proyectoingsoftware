@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service
 public class VehiculoServicios {
 
-    VehiculoRepositorio vehiculoRepositorio;
+    private final VehiculoRepositorio vehiculoRepositorio;
 
     public void registrarVehiculo(Vehiculo vehiculo) {
         vehiculoRepositorio.save(vehiculo);
@@ -31,6 +31,7 @@ public class VehiculoServicios {
             return false;
         }
     }
+
     public Vehiculo obtenerPorId(Long id) {
         Optional<Vehiculo> vehiculo = vehiculoRepositorio.findById(id);
         return vehiculo.orElse(null);
@@ -53,5 +54,31 @@ public class VehiculoServicios {
         } else {
             throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculo.getId());
         }
+    }
+
+    // Método para fabricar vehículos
+    public void fabricarVehiculos(Long idVehiculo, int cantidad) {
+        System.out.println("Buscando vehículo con ID: " + idVehiculo);
+
+        Vehiculo vehiculo = obtenerPorId(idVehiculo);
+        if (vehiculo == null) {
+            System.out.println("Vehículo no encontrado.");
+            throw new IllegalArgumentException("Vehículo con ID " + idVehiculo + " no encontrado.");
+        }
+
+        System.out.println("Vehículo encontrado: " + vehiculo);
+
+        if (cantidad <= 0) {
+            System.out.println("Cantidad no válida: " + cantidad);
+            throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
+        }
+
+        // Aquí no es necesario comprobar si cantidadStock es null, ya que int no puede ser null.
+        // El valor predeterminado de int es 0, por lo que se puede agregar directamente
+        vehiculo.setCantidadStock(vehiculo.getCantidadStock() + cantidad);
+        System.out.println("Nueva cantidad en stock: " + vehiculo.getCantidadStock());
+
+        vehiculoRepositorio.save(vehiculo);
+        System.out.println("Vehículo actualizado correctamente.");
     }
 }

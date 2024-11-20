@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entregar Pedidos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ffffff; /* Fondo blanco */
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2a3f54; /* Color secundario */
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: #ffffff; /* Fondo blanco para la tabla */
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2a3f54;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9; /* Fondo muy suave para filas pares */
+        }
+
+        tr:nth-child(odd) {
+            background-color: #f3f4f6; /* Fondo suave para filas impares */
+        }
+
+        .btn-entregar {
+            padding: 10px 15px;
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .btn-entregar:hover {
+            background-color: #16a085;
+        }
+
+        .no-pedidos {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Pedidos Pendientes para Entregar</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID Pedido</th>
+        <th>Vehículo</th>
+        <th>Cantidad</th>
+        <th>Estado</th>
+        <th>Pais de Destino</th> <!-- Nueva columna -->
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Renderiza los pedidos -->
+    <tr th:each="pedido : ${pedidos}">
+        <td th:text="${pedido.id}"></td>
+        <td th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo}"></td>
+        <td th:text="${pedido.cantidad}"></td>
+        <td th:text="${pedido.estado}"></td>
+        <td th:text="${pedido.pais}"></td> <!-- Mostramos el país de destino -->
+        <td>
+            <form th:action="@{/pedidos/entregar}" method="post">
+                <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                <button class="btn-entregar" type="submit">Entregar</button>
+            </form>
+        </td>
+    </tr>
+
+    <!-- Muestra un mensaje si no hay pedidos -->
+    <div th:if="${#lists.isEmpty(pedidos)}" class="no-pedidos">
+        <p>No hay pedidos pendientes.</p>
+    </div>
+    </tbody>
+</table>
+
+</body>
+</html>
