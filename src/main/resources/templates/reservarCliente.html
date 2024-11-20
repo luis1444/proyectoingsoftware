@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro de Reserva de Vehículo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         /* Estilos básicos */
         body {
@@ -67,7 +68,7 @@
 
 <div class="form-container">
     <h2>Registro de Reserva</h2>
-    <form action="/submit-reservation" method="post">
+    <form id="reservationForm">
         <div class="form-group">
             <label for="vehicleId">ID del Vehículo</label>
             <input type="text" id="vehicleId" name="vehicleId" required>
@@ -108,6 +109,76 @@
         <button type="submit" class="submit-button">Registrar Reserva</button>
     </form>
 </div>
+
+<script>
+    document.getElementById('reservationForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Obtener los datos del formulario
+        const vehicleId = document.getElementById('vehicleId').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const paymentMethod = document.getElementById('paymentMethod').value;
+        const deliveryDate = document.getElementById('deliveryDate').value;
+
+        // Crear un objeto de reserva
+        const newReservation = {
+            vehicleId: vehicleId,
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            phone: phone,
+            address: address,
+            paymentMethod: paymentMethod,
+            deliveryDate: deliveryDate,
+            status: "Pendiente"  // El estado inicial es "Pendiente"
+        };
+
+        // Recuperar las reservas existentes desde localStorage
+        let reservations = JSON.parse(localStorage.getItem('reservations')) || [];
+
+        // Agregar la nueva reserva al array
+        reservations.push(newReservation);
+
+        // Guardar las reservas actualizadas en localStorage
+        localStorage.setItem('reservations', JSON.stringify(reservations));
+
+        // Generar y descargar PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Agregar contenido al PDF
+        doc.text("Confirmación de Reserva", 20, 20);
+        doc.text(`ID del Vehículo: ${vehicleId}`, 20, 30);
+        doc.text(`Nombre: ${firstName}`, 20, 40);
+        doc.text(`Apellido: ${lastName}`, 20, 50);
+        doc.text(`Correo Electrónico: ${email}`, 20, 60);
+        doc.text(`Número de Teléfono: ${phone}`, 20, 70);
+        doc.text(`Dirección de Entrega: ${address}`, 20, 80);
+        doc.text(`Forma de Pago: ${paymentMethod}`, 20, 90);
+        doc.text(`Fecha de Entrega Deseada: ${deliveryDate}`, 20, 100);
+
+        // Descargar el PDF
+        doc.save("Confirmacion_Reserva.pdf");
+
+        // Redirigir a la página de confirmación con los datos en la URL
+        const urlParams = new URLSearchParams({
+            vehicleId,
+            firstName,
+            lastName,
+            email,
+            phone,
+            address,
+            paymentMethod,
+            deliveryDate,
+        });
+
+        window.location.href = `http://localhost:63342/apl/concesionario/templates/reservaConfirmadescargar.html?${urlParams.toString()}`;
+    });
+</script>
 
 </body>
 </html>

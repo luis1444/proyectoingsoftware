@@ -49,32 +49,39 @@
 </div>
 
 <script>
-    // Recuperar los datos de <localStorage></localStorage>
-    document.getElementById("vehicleId").textContent = localStorage.getItem("vehicleId");
-    document.getElementById("firstName").textContent = localStorage.getItem("firstName");
-    document.getElementById("lastName").textContent = localStorage.getItem("lastName");
-    document.getElementById("email").textContent = localStorage.getItem("email");
-    document.getElementById("phone").textContent = localStorage.getItem("phone");
-    document.getElementById("address").textContent = localStorage.getItem("address");
-    document.getElementById("paymentMethod").textContent = localStorage.getItem("paymentMethod");
-    document.getElementById("deliveryDate").textContent = localStorage.getItem("deliveryDate");
+    // Función para obtener parámetros de la URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param) || '';
+    }
 
+    // Rellenar los datos en la página
+    document.getElementById("vehicleId").textContent = getQueryParam("vehicleId");
+    document.getElementById("firstName").textContent = getQueryParam("firstName");
+    document.getElementById("lastName").textContent = getQueryParam("lastName");
+    document.getElementById("email").textContent = getQueryParam("email");
+    document.getElementById("phone").textContent = getQueryParam("phone");
+    document.getElementById("address").textContent = getQueryParam("address");
+    document.getElementById("paymentMethod").textContent = getQueryParam("paymentMethod");
+    document.getElementById("deliveryDate").textContent = getQueryParam("deliveryDate");
+
+    // Generar y descargar PDF
     function downloadPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
-        // Agregar el contenido al PDF
+        // Agregar contenido al PDF
         doc.text("Confirmación de Reserva", 20, 20);
-        doc.text(`ID del Vehículo: ${localStorage.getItem("vehicleId")}`, 20, 30);
-        doc.text(`Nombre: ${localStorage.getItem("firstName")}`, 20, 40);
-        doc.text(`Apellido: ${localStorage.getItem("lastName")}`, 20, 50);
-        doc.text(`Correo Electrónico: ${localStorage.getItem("email")}`, 20, 60);
-        doc.text(`Número de Teléfono: ${localStorage.getItem("phone")}`, 20, 70);
-        doc.text(`Dirección de Entrega: ${localStorage.getItem("address")}`, 20, 80);
-        doc.text(`Forma de Pago: ${localStorage.getItem("paymentMethod")}`, 20, 90);
-        doc.text(`Fecha de Entrega Deseada: ${localStorage.getItem("deliveryDate")}`, 20, 100);
+        doc.text(`ID del Vehículo: ${getQueryParam("vehicleId")}`, 20, 30);
+        doc.text(`Nombre: ${getQueryParam("firstName")}`, 20, 40);
+        doc.text(`Apellido: ${getQueryParam("lastName")}`, 20, 50);
+        doc.text(`Correo Electrónico: ${getQueryParam("email")}`, 20, 60);
+        doc.text(`Número de Teléfono: ${getQueryParam("phone")}`, 20, 70);
+        doc.text(`Dirección de Entrega: ${getQueryParam("address")}`, 20, 80);
+        doc.text(`Forma de Pago: ${getQueryParam("paymentMethod")}`, 20, 90);
+        doc.text(`Fecha de Entrega Deseada: ${getQueryParam("deliveryDate")}`, 20, 100);
 
-        // Descargar el PDF
+        // Descargar el archivo
         doc.save("Confirmacion_Reserva.pdf");
     }
 </script>

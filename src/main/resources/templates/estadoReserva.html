@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estado de la Reserva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .reservation-status-container {
+      background-color: #2c3e50;
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 600px;
+    }
+    .reservation-status-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .status-card {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 15px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-card p {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .status-card .status-label {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .status-card .status-value {
+      font-size: 16px;
+      color: #ecf0f1;
+    }
+    .input-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .input-container input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+    .input-container button {
+      padding: 10px 20px;
+      background-color: #34495e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .input-container button:hover {
+      background-color: #2c3e50;
+    }
+    .footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="reservation-status-container">
+  <h2>Consultar Estado de la Reserva</h2>
+
+  <div class="input-container">
+    <input type="text" id="vehicleId" placeholder="Ingrese ID del Vehículo" />
+    <button onclick="consultarEstadoReserva()">Consultar Estado</button>
+  </div>
+
+  <div id="reservationStatus" class="status-card">
+    <!-- El contenido de la reserva se generará dinámicamente -->
+  </div>
+
+  <div id="buttonContainer" class="button-container" style="display: none;">
+    <button onclick="entregarReserva()">Marcar como Entregado</button>
+    <button onclick="cancelarReserva()">Cancelar Reserva</button>
+  </div>
+</div>
+
+<div class="footer">
+  <p>&copy; 2024 Concesionario</p>
+</div>
+
+<script>
+  // Variable global para almacenar la reserva seleccionada
+  let selectedReservation = null;
+
+  // Función para consultar el estado de la reserva basado en el ID del vehículo
+  function consultarEstadoReserva() {
+    const vehicleId = document.getElementById('vehicleId').value;
+    const statusCard = document.getElementById('reservationStatus');
+    const buttonContainer = document.getElementById('buttonContainer');
+
+    if (!vehicleId) {
+      alert("Por favor, ingrese el ID del vehículo.");
+      return;
+    }
+
+    // Recuperar las reservas guardadas desde localStorage
+    const reservas = JSON.parse(localStorage.getItem('reservations')) || [];
+
+    // Buscar la reserva por el ID del vehículo
+    const reservation = reservas.find(reservation => reservation.vehicleId === vehicleId);
+    selectedReservation = reservation;
+
+    if (reservation) {
+      // Si la reserva se encuentra, mostrar los detalles
+      statusCard.innerHTML = `
+        <div>
+          <p><span class="status-label">ID del Vehículo:</span> <span class="status-value">${reservation.vehicleId}</span></p>
+          <p><span class="status-label">Cliente:</span> <span class="status-value">${reservation.firstName} ${reservation.lastName}</span></p>
+          <p><span class="status-label">Correo Electrónico:</span> <span class="status-value">${reservation.email}</span></p>
+          <p><span class="status-label">Número de Teléfono:</span> <span class="status-value">${reservation.phone}</span></p>
+          <p><span class="status-label">Dirección de Entrega:</span> <span class="status-value">${reservation.address}</span></p>
+          <p><span class="status-label">Forma de Pago:</span> <span class="status-value">${reservation.paymentMethod}</span></p>
+          <p><span class="status-label">Fecha de Entrega Deseada:</span> <span class="status-value">${reservation.deliveryDate}</span></p>
+        </div>
+        <div>
+          <p><span class="status-label">Estado:</span> <span class="status-value" style="color: ${getStatusColor(reservation.status)}">${reservation.status}</span></p>
+        </div>
+      `;
+
+      // Mostrar los botones de "Marcar como Entregado" y "Cancelar Reserva" si la reserva no está entregada ni cancelada
+      if (reservation.status !== 'Entregado' && reservation.status !== 'Cancelada') {
+        buttonContainer.style.display = 'flex';
+      } else {
+        buttonContainer.style.display = 'none';
+      }
+    } else {
+      // Si no se encuentra la reserva, mostrar mensaje
+      statusCard.innerHTML = `
+        <p><span class="status-label">Reserva no encontrada para el ID: </span><span class="status-value">${vehicleId}</span></p>
+      `;
+      buttonContainer.style.display = 'none';
+    }
+  }
+
+  // Función para devolver un color según el estado de la reserva
+  function getStatusColor(status) {
+    switch (status) {
+      case 'Confirmada':
+        return '#2ecc71'; // Verde para confirmada
+      case 'Pendiente':
+        return '#f39c12'; // Amarillo para pendiente
+      case 'Entregado':
+        return '#3498db'; // Azul para entregado
+      case 'Cancelada':
+        return '#e74c3c'; // Rojo para cancelada
+      default:
+        return '#ecf0f1'; // Color por defecto
+    }
+  }
+
+  // Función para marcar la reserva como entregada
+  function entregarReserva() {
+    if (!selectedReservation) {
+      alert("No se ha seleccionado una reserva válida.");
+      return;
+    }
+
+    // Cambiar el estado de la reserva a "Entregado"
+    selectedReservation.status = 'Entregado';
+
+    // Guardar los cambios en el localStorage
+    let reservas = JSON.parse(localStorage.getItem('reservations')) || [];
+    const index = reservas.findIndex(reservation => reservation.vehicleId === selectedReservation.vehicleId);
+    if (index !== -1) {
+      reservas[index] = selectedReservation;
+      localStorage.setItem('reservations', JSON.stringify(reservas));
+      alert("Reserva marcada como entregada.");
+
+      // Volver a consultar el estado después de marcarla como entregada
+      consultarEstadoReserva();
+    }
+  }
+
+  // Función para cancelar la reserva
+  function cancelarReserva() {
+    if (!selectedReservation) {
+      alert("No se ha seleccionado una reserva válida.");
+      return;
+    }
+
+    // Cambiar el estado de la reserva a "Cancelada"
+    selectedReservation.status = 'Cancelada';
+
+    // Guardar los cambios en el localStorage
+    let reservas = JSON.parse(localStorage.getItem('reservations')) || [];
+    const index = reservas.findIndex(reservation => reservation.vehicleId === selectedReservation.vehicleId);
+    if (index !== -1) {
+      reservas[index] = selectedReservation;
+      localStorage.setItem('reservations', JSON.stringify(reservas));
+      alert("Reserva cancelada con éxito.");
+
+      // Volver a consultar el estado después de la cancelación
+      consultarEstadoReserva();
+    }
+  }
+</script>
+
+</body>
+</html>
