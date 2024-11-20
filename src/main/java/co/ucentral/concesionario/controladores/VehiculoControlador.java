@@ -82,6 +82,7 @@ public class VehiculoControlador {
         List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
         return vehiculos.stream().map(vehiculo -> {
             Map<String, Object> vehiculoMap = Map.of(
+                    "id", vehiculo.getId(),
                     "marca", vehiculo.getMarca(),
                     "modelo", vehiculo.getModelo(),
                     "anio", vehiculo.getAnio(),
@@ -89,6 +90,7 @@ public class VehiculoControlador {
                     "precio", vehiculo.getPrecio(),
                     "tipoCombustible", vehiculo.getTipoCombustible(),
                     "paisOrigen", vehiculo.getPaisOrigen(),
+                    "cantidadStock", vehiculo.getCantidadStock(),
                     "foto", vehiculo.getFoto() != null ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(vehiculo.getFoto()) : null
             );
             return vehiculoMap;
@@ -219,7 +221,12 @@ public class VehiculoControlador {
             if (!request.containsKey("idVehiculo") || request.get("idVehiculo") == null) {
                 return ResponseEntity.badRequest().body("Error: idVehiculo es obligatorio.");
             }
-            Long idVehiculo = Long.valueOf(request.get("idVehiculo").toString()); // Convertir a Long
+            Long idVehiculo;
+            try {
+                idVehiculo = Long.valueOf(request.get("idVehiculo").toString());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Error: idVehiculo debe ser un número válido.");
+            }
 
             // Validar y extraer cantidad
             if (!request.containsKey("cantidad") || request.get("cantidad") == null) {
@@ -240,14 +247,12 @@ public class VehiculoControlador {
             vehiculoServicios.fabricarVehiculos(idVehiculo, cantidad);
 
             return ResponseEntity.ok("Vehículos fabricados y stock actualizado correctamente.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            // Para errores inesperados
             e.printStackTrace(); // Solo para debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
         }
     }
+
 
 
 

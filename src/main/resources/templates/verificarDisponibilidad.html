@@ -92,7 +92,6 @@
 
     <button id="fabricarBtn">Fabricar Vehículos</button>
 </div>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Función para cargar datos del backend
@@ -110,6 +109,12 @@
                     tabla.innerHTML = '';
                     selector.innerHTML = '<option value="" disabled selected>Seleccione un vehículo</option>';
 
+                    // Verificar si hay vehículos disponibles
+                    if (!vehiculos.length) {
+                        alert('No hay vehículos disponibles en el sistema.');
+                        return;
+                    }
+
                     // Llenar la tabla y el selector
                     vehiculos.forEach(vehiculo => {
                         const fila = `
@@ -124,16 +129,16 @@
                         `;
                         tabla.insertAdjacentHTML('beforeend', fila);
 
-                        const opcion = `
-                            <option value="${vehiculo.id}">${vehiculo.modelo} - ${vehiculo.marca}</option>
-                        `;
-                        selector.insertAdjacentHTML('beforeend', opcion);
+                        // Validar si el id del vehículo existe antes de añadir la opción
+                        if (vehiculo.id) {
+                            const opcion = `
+                                <option value="${vehiculo.id}">${vehiculo.modelo} - ${vehiculo.marca}</option>
+                            `;
+                            selector.insertAdjacentHTML('beforeend', opcion);
+                        }
                     });
 
-                    // Asegurar que la primera opción esté seleccionada
-                    if (selector.options.length > 0) {
-                        selector.options[0].selected = true;
-                    }
+                    console.log('Opciones cargadas en el selector:', selector.innerHTML);
                 })
                 .catch(error => console.error('Error al cargar los vehículos:', error));
         };
@@ -150,8 +155,13 @@
             console.log("ID del Vehículo:", idVehiculo);  // Verificar si idVehiculo tiene el valor correcto
             console.log("Cantidad:", cantidad);  // Verificar la cantidad seleccionada
 
-            if (!idVehiculo || !cantidad || cantidad <= 0) {
-                alert('Por favor, seleccione un vehículo y una cantidad válida.');
+            if (!idVehiculo || idVehiculo === "undefined") {
+                alert('Por favor, seleccione un vehículo válido.');
+                return;
+            }
+
+            if (!cantidad || cantidad <= 0) {
+                alert('Por favor, ingrese una cantidad válida.');
                 return;
             }
 
@@ -160,7 +170,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id: idVehiculo, cantidad: parseInt(cantidad) })  // Corregido para enviar "id" en lugar de "idVehiculo"
+                body: JSON.stringify({ idVehiculo: idVehiculo, cantidad: parseInt(cantidad) })
             })
             .then(response => {
                 if (response.ok) {
@@ -172,11 +182,10 @@
             })
             .catch(error => {
                 console.error('Error al hacer la solicitud:', error);
-                alert('Error al hacer la solicitud: ' + error.message);  // Mostrar el error detallado
+                alert('Error al hacer la solicitud: ' + error.message);
             });
         });
     });
 </script>
-
 </body>
 </html>
