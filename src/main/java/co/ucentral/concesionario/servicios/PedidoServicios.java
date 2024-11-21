@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -99,5 +100,14 @@ public class PedidoServicios {
         pedido.setEstado("Exportado");
         pedidoRepositorio.save(pedido);
     }
+
+    public List<Pedido> obtenerPedidosPendientes() {
+        List<Pedido> pedidos = obtenerTodos(); // Suponiendo que existe un método obtenerTodos
+        return pedidos.stream()
+                .filter(pedido -> "Pendiente".equalsIgnoreCase(pedido.getEstado()))
+                .collect(Collectors.toList());
+    }
+
+
 
 }

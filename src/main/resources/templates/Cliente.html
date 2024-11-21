@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -139,8 +140,8 @@
     function reservarVehiculo(nombreVehiculo) {
         // Reemplaza los espacios en el nombre con guiones para la URL
         const nombreFormateado = nombreVehiculo.replace(/\s+/g, '-').toLowerCase();
-        // Redirige a la página de reserva con el nombre del vehículo
-        window.location.href = `http://localhost:63342/apl/concesionario/templates/reservarCliente.html?_ijt=3udbrcmtkavtmfargc6vmfdhu0&_ij_reload=RELOAD_ON_SAVE`;
+        // Redirige a la página de reserva con el nombre del vehículo usando la ruta del controlador
+        window.location.href = `/cliente/reservar?vehiculo=${nombreFormateado}`;
     }
 
     // Función para consultar el estado de la reserva
@@ -148,8 +149,8 @@
         const reservaId = prompt("Introduce tu ID de reserva para consultar el estado:");
 
         if (reservaId) {
-            // Redirigir a una página de consulta de estado (puedes cambiar esta URL)
-            window.location.href = `http://localhost:63342/apl/concesionario/templates/estadoReserva.html?_ijt=4anm1pbrj6fectf24ecdl94s5s&_ij_reload=RELOAD_ON_SAVE`;
+            // Redirigir a la página de consulta de estado usando la ruta del controlador
+            window.location.href = `/cliente/reservaConfirmada/${reservaId}`;
         }
     }
 

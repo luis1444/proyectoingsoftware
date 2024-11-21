@@ -84,4 +84,8 @@ public class VehiculoServicios {
     public List<Vehiculo> obtenerTodosLosVehiculos() {
         return vehiculoRepositorio.findAll();
     }
+    public Vehiculo obtenerVehiculoPorNombre(String modelo) {
+        return vehiculoRepositorio.findByModelo(modelo); // Asumiendo que tienes un método en el repositorio para esto
+    }
+
 }

@@ -1,7 +1,9 @@
 package co.ucentral.concesionario.controladores;
 
+import co.ucentral.concesionario.persistencia.entidades.Inventario;
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
+import co.ucentral.concesionario.servicios.InventarioServicios;
 import co.ucentral.concesionario.servicios.PedidoServicios;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import jakarta.transaction.Transactional;
@@ -21,6 +23,8 @@ public class PedidoControlador {
 
     @Autowired
     private VehiculoServicios vehiculoServicios;
+
+    InventarioServicios inventarioServicios;
 
     // Registrar un nuevo pedido
     @PostMapping("/registrarPedido")
@@ -106,5 +110,60 @@ public class PedidoControlador {
             model.addAttribute("error", "Error al entregar el pedido: " + e.getMessage());
         }
         return "redirect:/pedidos/entregarPedidos"; // Redirige para recargar la lista actualizada
+    }
+
+    @PostMapping("/aceptarPedido")
+    @Transactional
+    public String aceptarPedido(@RequestParam Long pedidoId, Model model) {
+        try {
+            Pedido pedido = pedidoServicios.obtenerPorId(pedidoId);
+            if (pedido == null || !pedido.getEstado().equals("Pendiente")) {
+                model.addAttribute("error", "El pedido no es válido o ya ha sido procesado.");
+                return "redirect:/pedidos/inventario";
+            }
+
+            Vehiculo vehiculo = pedido.getVehiculo();
+            int cantidadPedida = pedido.getCantidad();
+
+            // Actualizar el inventario
+            Inventario inventario = inventarioServicios.obtenerPorVehiculoId(vehiculo.getId());
+            if (inventario == null) {
+                inventario = new Inventario();
+                inventario.setVehiculo(vehiculo);
+                inventario.setCantidad(cantidadPedida);
+                inventarioServicios.registrarInventario(inventario);
+            } else {
+                inventario.setCantidad(inventario.getCantidad() + cantidadPedida);
+                inventarioServicios.actualizarCantidadInventario(inventario.getId(), cantidadPedida);
+            }
+
+            // Cambiar estado del pedido
+            pedidoServicios.entregarPedido(pedidoId);
+
+            model.addAttribute("mensaje", "Pedido aceptado y actualizado en el inventario.");
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al aceptar el pedido: " + e.getMessage());
+        }
+        return "redirect:/pedidos/inventario";
+    }
+
+
+    @GetMapping("/inventario")
+    public String mostrarInventario(Model model) {
+        try {
+            List<Inventario> inventarios = inventarioServicios.obtenerTodos();
+            model.addAttribute("inventarios", inventarios);
+
+            List<Pedido> pedidosPendientes = pedidoServicios.obtenerPedidosPorEstado("Pendiente");
+            model.addAttribute("pedidosPendientes", pedidosPendientes);
+
+            return "verInventario"; // HTML que muestra inventario y pedidos
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar inventario y pedidos: " + e.getMessage());
+            e.printStackTrace();
+            return "error";
+        }
+
+
     }
 }

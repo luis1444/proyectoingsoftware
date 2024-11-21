@@ -1,18 +1,17 @@
 package co.ucentral.concesionario.controladores;
 
 import co.ucentral.concesionario.persistencia.entidades.Cliente;
+import co.ucentral.concesionario.persistencia.entidades.Reserva;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
 import co.ucentral.concesionario.servicios.ClienteServicios;
+import co.ucentral.concesionario.servicios.ReservaServicios;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.sql.Date;
 
 @Controller
 @RequestMapping("/cliente")
@@ -21,16 +20,79 @@ public class ClienteControlador {
     @Autowired
     private ClienteServicios clienteServicios;
 
-    @PostMapping("/registrar")
-    public String registrarReserva(@ModelAttribute Cliente cliente, Model model) {
-        Cliente clienteGuardado = clienteServicios.registrarReserva(cliente);
-        model.addAttribute("cliente", clienteGuardado);
-        return "redirect:reservaConfirmadescargar.html  " + clienteGuardado.getId();
-    }
-    @GetMapping
-    public String listarClientes(Model model) {
-        model.addAttribute("clientes", clienteServicios.obtenerTodosLosClientes());
-        return "listaClientes"; // Vista para mostrar la lista de clientes
+    @Autowired
+    private VehiculoServicios vehiculoServicios;
+
+    @Autowired
+    private ReservaServicios reservaServicios;
+
+    // Mostrar formulario de reserva con el vehículo seleccionado
+    @GetMapping("/reservar")
+    public String mostrarFormularioReserva(@RequestParam String vehiculo, Model model) {
+        System.out.println("Vehículo recibido en GET: " + vehiculo);  // Depuración
+        model.addAttribute("vehiculo", vehiculo); // Pasamos el nombre del vehículo al modelo
+        model.addAttribute("cliente", new Cliente());
+        return "reservarCliente"; // Nombre del archivo en templates/
     }
 
+    // Registrar la reserva desde el formulario
+    @PostMapping("/registrar")
+    public String registrarReserva(
+            @ModelAttribute Cliente cliente,
+            @RequestParam String vehiculo,
+            @RequestParam String paymentMethod,
+            @RequestParam String deliveryDate,
+            Model model) {
+        try {
+            System.out.println("Datos recibidos en POST: " + cliente);  // Depuración
+            System.out.println("Vehículo recibido en POST: " + vehiculo);  // Depuración
+
+            // Validar y obtener el vehículo
+            Vehiculo vehiculoSeleccionado = vehiculoServicios.obtenerVehiculoPorNombre(vehiculo);
+            if (vehiculoSeleccionado == null) {
+                model.addAttribute("error", "El vehículo no existe.");
+                return "reservarCliente";
+            }
+
+            // Validar si el cliente existe o crearlo
+            Cliente clienteExistente = clienteServicios.obtenerClientePorEmail(cliente.getCorreoElectronico());
+            if (clienteExistente == null) {
+                clienteServicios.guardarCliente(cliente);
+            } else {
+                cliente = clienteExistente; // Usamos el cliente existente
+            }
+
+            // Crear la reserva
+            Reserva nuevaReserva = new Reserva();
+            nuevaReserva.setCliente(cliente);
+            nuevaReserva.setVehiculo(vehiculoSeleccionado);
+            nuevaReserva.setEstado("Pendiente");
+            nuevaReserva.setFechaReserva(new Date(System.currentTimeMillis())); // Fecha actual
+            nuevaReserva.setFechaInicio(Date.valueOf(deliveryDate));
+            nuevaReserva.setFechaFin(Date.valueOf(deliveryDate)); // Ajusta según lógica de negocio
+
+            // Guardar la reserva
+            Reserva reservaGuardada = reservaServicios.guardarReserva(nuevaReserva);
+
+            // Redirigir a la vista de confirmación
+            return "redirect:/cliente/reservaConfirmada/" + reservaGuardada.getId();
+        } catch (Exception e) {
+            // Manejo de errores
+            model.addAttribute("error", "Error al registrar la reserva: " + e.getMessage());
+            return "reservarCliente"; // Volver al formulario en caso de error
+        }
+    }
+
+    // Mostrar la confirmación de la reserva
+    @GetMapping("/reservaConfirmada/{id}")
+    public String mostrarReservaConfirmada(@PathVariable Long id, Model model) {
+        try {
+            Reserva reserva = reservaServicios.obtenerReservaPorId(id);
+            model.addAttribute("reserva", reserva);
+            return "reservaConfirmadadescargar"; // Vista de confirmación
+        } catch (Exception e) {
+            model.addAttribute("error", "No se pudo encontrar la reserva.");
+            return "reservarCliente";
+        }
+    }
 }
