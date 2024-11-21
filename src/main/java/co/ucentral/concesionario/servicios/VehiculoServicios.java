@@ -73,12 +73,15 @@ public class VehiculoServicios {
             throw new IllegalArgumentException("La cantidad debe ser mayor a 0.");
         }
 
-        // Aquí no es necesario comprobar si cantidadStock es null, ya que int no puede ser null.
-        // El valor predeterminado de int es 0, por lo que se puede agregar directamente
         vehiculo.setCantidadStock(vehiculo.getCantidadStock() + cantidad);
         System.out.println("Nueva cantidad en stock: " + vehiculo.getCantidadStock());
 
         vehiculoRepositorio.save(vehiculo);
         System.out.println("Vehículo actualizado correctamente.");
+    }
+
+    // Método para obtener todos los vehículos
+    public List<Vehiculo> obtenerTodosLosVehiculos() {
+        return vehiculoRepositorio.findAll();
     }
 }
