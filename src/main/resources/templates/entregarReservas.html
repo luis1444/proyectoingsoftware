@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entregar Reservas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2a3f54;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2a3f54;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #f3f4f6;
+        }
+
+        .btn-entregar {
+            padding: 10px 15px;
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .btn-entregar:hover {
+            background-color: #16a085;
+        }
+
+        .no-reservas {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+    </style>
+    <script>
+        async function entregarReserva(reservaId) {
+            try {
+                const response = await fetch('/reservas/entregar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reservaId })
+                });
+
+                if (response.ok) {
+                    alert('Reserva entregada correctamente');
+                    location.reload(); // Recargar la página para actualizar la tabla
+                } else {
+                    alert('Error al entregar la reserva');
+                }
+            } catch (error) {
+                alert('Error de conexión con el servidor');
+            }
+        }
+    </script>
+</head>
+<body>
+<h1>Reservas Pendientes para Entregar</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID Reserva</th>
+        <th>Vehículo</th>
+        <th>Cantidad</th>
+        <th>Estado</th>
+        <th>Dirección de Entrega</th>
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody id="tablaReservas">
+    <!-- La tabla se llenará dinámicamente -->
+    </tbody>
+</table>
+<script>
+    async function cargarReservas() {
+        const response = await fetch('/reservas/pendientes');
+        const reservas = await response.json();
+
+        const tabla = document.getElementById('tablaReservas');
+        if (reservas.length === 0) {
+            tabla.innerHTML = '<tr><td colspan="6" class="no-reservas">No hay reservas pendientes.</td></tr>';
+            return;
+        }
+
+        reservas.forEach(reserva => {
+            const fila = `
+                <tr>
+                    <td>${reserva.id}</td>
+                    <td>${reserva.vehiculo.marca} ${reserva.vehiculo.modelo}</td>
+                    <td>${reserva.cantidad}</td>
+                    <td>${reserva.estado}</td>
+                    <td>${reserva.direccionEntrega}</td>
+                    <td>
+                        <button class="btn-entregar" onclick="entregarReserva(${reserva.id})">Entregar</button>
+                    </td>
+                </tr>`;
+            tabla.innerHTML += fila;
+        });
+    }
+
+    // Cargar las reservas al iniciar la página
+    cargarReservas();
+</script>
+</body>
+</html>

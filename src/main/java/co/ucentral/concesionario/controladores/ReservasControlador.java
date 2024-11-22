@@ -2,6 +2,7 @@ package co.ucentral.concesionario.controladores;
 
 import co.ucentral.concesionario.persistencia.entidades.Reserva;
 import co.ucentral.concesionario.servicios.ReservaServicios;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -90,5 +91,28 @@ public class ReservasControlador {
         model.addAttribute("reservas", reservas); // Añadir las reservas al modelo
         return "consultarReservas"; // Renderiza la vista consultarReservas.html
     }
+
+    @GetMapping("/pendientes")
+    @Transactional
+    public String mostrarReservasPendientes(Model model) {
+        try {
+            // Obtener todas las reservas pendientes desde el servicio
+            List<Reserva> reservasPendientes = reservaServicios.obtenerReservasPendientes();
+
+            // Verificar si hay reservas pendientes
+            if (reservasPendientes.isEmpty()) {
+                model.addAttribute("mensaje", "No hay reservas pendientes para entregar.");
+            } else {
+                model.addAttribute("reservas", reservasPendientes); // Añadir las reservas pendientes al modelo
+            }
+
+            return "entregarReservas"; // Retorna la vista "entregarReservas.html"
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar las reservas pendientes: " + e.getMessage());
+            return "error"; // Redirige a la vista de error si ocurre algún problema
+        }
+    }
+
+
 
 }

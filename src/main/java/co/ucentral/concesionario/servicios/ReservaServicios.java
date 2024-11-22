@@ -27,5 +27,9 @@ public class ReservaServicios {
     public Reserva guardarReserva(Reserva reserva) {
         return reservaRepositorio.save(reserva);
     }
-    
+
+    public List<Reserva> obtenerReservasPendientes() {
+        return reservaRepositorio.findByEstado("Pendiente"); // Filtrar por estado 'Pendiente'
+    }
+
 }

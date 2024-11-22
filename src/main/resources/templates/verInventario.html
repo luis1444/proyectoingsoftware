@@ -133,7 +133,7 @@
             <td th:text="${pedido.cantidad}"></td>
             <td>
                 <!-- Botón para aceptar el pedido -->
-                <form th:action="@{/inventarios/aceptarPedido}" method="post">
+                <form th:action="@{/inventario/aceptarPedido}" method="post">
                     <input type="hidden" name="pedidoId" th:value="${pedido.id}" />
                     <button type="submit">Aceptar Pedido</button>
                 </form>

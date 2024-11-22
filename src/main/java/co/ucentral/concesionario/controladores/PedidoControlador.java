@@ -112,40 +112,7 @@ public class PedidoControlador {
         return "redirect:/pedidos/entregarPedidos"; // Redirige para recargar la lista actualizada
     }
 
-    @PostMapping("/aceptarPedido")
-    @Transactional
-    public String aceptarPedido(@RequestParam Long pedidoId, Model model) {
-        try {
-            Pedido pedido = pedidoServicios.obtenerPorId(pedidoId);
-            if (pedido == null || !pedido.getEstado().equals("Pendiente")) {
-                model.addAttribute("error", "El pedido no es válido o ya ha sido procesado.");
-                return "redirect:/pedidos/inventario";
-            }
 
-            Vehiculo vehiculo = pedido.getVehiculo();
-            int cantidadPedida = pedido.getCantidad();
-
-            // Actualizar el inventario
-            Inventario inventario = inventarioServicios.obtenerPorVehiculoId(vehiculo.getId());
-            if (inventario == null) {
-                inventario = new Inventario();
-                inventario.setVehiculo(vehiculo);
-                inventario.setCantidad(cantidadPedida);
-                inventarioServicios.registrarInventario(inventario);
-            } else {
-                inventario.setCantidad(inventario.getCantidad() + cantidadPedida);
-                inventarioServicios.actualizarCantidadInventario(inventario.getId(), cantidadPedida);
-            }
-
-            // Cambiar estado del pedido
-            pedidoServicios.entregarPedido(pedidoId);
-
-            model.addAttribute("mensaje", "Pedido aceptado y actualizado en el inventario.");
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al aceptar el pedido: " + e.getMessage());
-        }
-        return "redirect:/pedidos/inventario";
-    }
 
 
 
