@@ -16,7 +16,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Controller
-@RequestMapping("/inventarios")
+@RequestMapping("/inventario")
 public class InventarioControlador {
 
      InventarioServicios inventarioServicios;
@@ -115,6 +115,22 @@ public class InventarioControlador {
         System.out.println("Pedidos recuperados: " + pedidos); // Verifica datos
         model.addAttribute("pedidos", pedidos);
         return "verInventario"; // Nombre del archivo HTML
+    }
+
+    @GetMapping("/verInventario")
+    public String mostrarInventario(Model model) {
+        try {
+            List<Inventario> inventarios = inventarioServicios.obtenerTodos();
+            List<Pedido> pedidosPendientes = pedidoServicios.obtenerTodos(); // Ajustar lógica según necesidad
+
+            model.addAttribute("inventarios", inventarios);
+            model.addAttribute("pedidosPendientes", pedidosPendientes);
+
+            return "verInventario";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar inventario y pedidos: " + e.getMessage());
+            return "error"; // Renderiza una página de error personalizada
+        }
     }
 
 }

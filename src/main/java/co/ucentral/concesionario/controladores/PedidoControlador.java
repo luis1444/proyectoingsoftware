@@ -148,22 +148,5 @@ public class PedidoControlador {
     }
 
 
-    @GetMapping("/inventario")
-    public String mostrarInventario(Model model) {
-        try {
-            List<Inventario> inventarios = inventarioServicios.obtenerTodos();
-            model.addAttribute("inventarios", inventarios);
 
-            List<Pedido> pedidosPendientes = pedidoServicios.obtenerPedidosPorEstado("Pendiente");
-            model.addAttribute("pedidosPendientes", pedidosPendientes);
-
-            return "verInventario"; // HTML que muestra inventario y pedidos
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al cargar inventario y pedidos: " + e.getMessage());
-            e.printStackTrace();
-            return "error";
-        }
-
-
-    }
 }
