@@ -38,16 +38,16 @@ public class ClienteControlador {
     // Registrar la reserva desde el formulario
     @PostMapping("/registrar")
     public String registrarReserva(
-            @ModelAttribute Cliente cliente,
-            @RequestParam String vehiculo,
+            @ModelAttribute Cliente cliente, // Cliente es recibido automáticamente por Spring
+            @RequestParam String vehiculo,  // Recibimos el nombre del vehículo desde el formulario
             @RequestParam String paymentMethod,
             @RequestParam String deliveryDate,
             Model model) {
         try {
-            System.out.println("Datos recibidos en POST: " + cliente);  // Depuración
-            System.out.println("Vehículo recibido en POST: " + vehiculo);  // Depuración
+            System.out.println("Datos recibidos en POST (Cliente): " + cliente);  // Depuración
+            System.out.println("Vehículo recibido en POST (Nombre): " + vehiculo);  // Depuración
 
-            // Validar y obtener el vehículo
+            // Validar y obtener el vehículo por nombre
             Vehiculo vehiculoSeleccionado = vehiculoServicios.obtenerVehiculoPorNombre(vehiculo);
             if (vehiculoSeleccionado == null) {
                 model.addAttribute("error", "El vehículo no existe.");
@@ -57,7 +57,7 @@ public class ClienteControlador {
             // Validar si el cliente existe o crearlo
             Cliente clienteExistente = clienteServicios.obtenerClientePorEmail(cliente.getCorreoElectronico());
             if (clienteExistente == null) {
-                clienteServicios.guardarCliente(cliente);
+                clienteServicios.guardarCliente(cliente);  // Guardamos el cliente si no existe
             } else {
                 cliente = clienteExistente; // Usamos el cliente existente
             }
