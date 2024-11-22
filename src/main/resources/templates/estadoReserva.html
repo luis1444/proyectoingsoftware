@@ -93,7 +93,7 @@
   <h2>Consultar Estado de la Reserva</h2>
 
   <div class="input-container">
-    <input type="text" id="vehicleId" placeholder="Ingrese ID del Vehículo" />
+    <input type="text" id="reservationId" placeholder="Ingrese ID de la Reserva" />
     <button onclick="consultarEstadoReserva()">Consultar Estado</button>
   </div>
 
@@ -116,28 +116,27 @@
   let selectedReservation = null;
 
   // Función para consultar el estado de la reserva basado en el ID del vehículo
-  function consultarEstadoReserva() {
-    const vehicleId = document.getElementById('vehicleId').value;
-    const statusCard = document.getElementById('reservationStatus');
-    const buttonContainer = document.getElementById('buttonContainer');
 
-    if (!vehicleId) {
-      alert("Por favor, ingrese el ID del vehículo.");
-      return;
-    }
+async function consultarEstadoReserva() {
+  const reservationId = document.getElementById('reservationId').value;
+  const statusCard = document.getElementById('reservationStatus');
+  const buttonContainer = document.getElementById('buttonContainer');
 
-    // Recuperar las reservas guardadas desde localStorage
-    const reservas = JSON.parse(localStorage.getItem('reservations')) || [];
+  if (!reservationId) {
+    alert("Por favor, ingrese el ID de la reserva.");
+    return;
+  }
 
-    // Buscar la reserva por el ID del vehículo
-    const reservation = reservas.find(reservation => reservation.vehicleId === vehicleId);
-    selectedReservation = reservation;
+  try {
+    // Llamada al backend para obtener la reserva
+    const response = await fetch(`/reservas/reservaConfirmada/${reservationId}`);
+    if (response.ok) {
+      const reservation = await response.json();
 
-    if (reservation) {
-      // Si la reserva se encuentra, mostrar los detalles
+      // Mostrar detalles de la reserva
       statusCard.innerHTML = `
         <div>
-          <p><span class="status-label">ID del Vehículo:</span> <span class="status-value">${reservation.vehicleId}</span></p>
+          <p><span class="status-label">ID de la Reserva:</span> <span class="status-value">${reservation.id}</span></p>
           <p><span class="status-label">Cliente:</span> <span class="status-value">${reservation.firstName} ${reservation.lastName}</span></p>
           <p><span class="status-label">Correo Electrónico:</span> <span class="status-value">${reservation.email}</span></p>
           <p><span class="status-label">Número de Teléfono:</span> <span class="status-value">${reservation.phone}</span></p>
@@ -150,20 +149,23 @@
         </div>
       `;
 
-      // Mostrar los botones de "Marcar como Entregado" y "Cancelar Reserva" si la reserva no está entregada ni cancelada
+      // Mostrar botones si la reserva no está entregada ni cancelada
       if (reservation.status !== 'Entregado' && reservation.status !== 'Cancelada') {
         buttonContainer.style.display = 'flex';
       } else {
         buttonContainer.style.display = 'none';
       }
     } else {
-      // Si no se encuentra la reserva, mostrar mensaje
-      statusCard.innerHTML = `
-        <p><span class="status-label">Reserva no encontrada para el ID: </span><span class="status-value">${vehicleId}</span></p>
-      `;
+      // Si no se encuentra la reserva
+      statusCard.innerHTML = `<p>Reserva no encontrada para el ID: ${reservationId}</p>`;
       buttonContainer.style.display = 'none';
     }
+  } catch (error) {
+    console.error("Error al consultar la reserva:", error);
+    statusCard.innerHTML = `<p>Ocurrió un error al consultar la reserva. Intente nuevamente más tarde.</p>`;
+    buttonContainer.style.display = 'none';
   }
+}
 
   // Función para devolver un color según el estado de la reserva
   function getStatusColor(status) {

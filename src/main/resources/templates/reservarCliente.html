@@ -5,6 +5,7 @@
     <title>Registro de Reserva de Vehículo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script> <!-- Aquí se agrega -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 para mensajes emergentes -->
     <style>
         body {
            font-family: Arial, sans-serif;
@@ -140,7 +141,14 @@
         })
         .then(data => {
             console.log('Reserva registrada:', data);
-            alert('Reserva registrada exitosamente.');
+
+            // Mostrar el mensaje emergente después de que la reserva sea exitosa usando SweetAlert2
+            Swal.fire({
+                title: 'Reserva realizada',
+                text: 'Tu reserva se ha realizado con éxito.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
 
             // Generar y descargar el PDF
             generarPDF(data);
@@ -151,51 +159,51 @@
         });
     });
 
-function generarPDF(data) {
-    const { jsPDF } = window.jspdf; // Accede a la librería jsPDF
-    const doc = new jsPDF();
+    function generarPDF(data) {
+        const { jsPDF } = window.jspdf; // Accede a la librería jsPDF
+        const doc = new jsPDF();
 
-    // Asegúrate de extraer correctamente los datos de `data`
-    const reservaId = data.reservaId || 'Desconocido';
-    const vehiculo = data.vehiculo || 'Vehículo no especificado';
-    const cliente = data.cliente || 'Cliente no especificado';
-    const precio = data.precio || 'Precio no disponible';
-    const fechaReserva = data.fechaReserva || 'Fecha no disponible';
-    const estado = data.estado || 'Estado no disponible';
+        // Asegúrate de extraer correctamente los datos de `data`
+        const reservaId = data.reservaId || 'Desconocido';
+        const vehiculo = data.vehiculo || 'Vehículo no especificado';
+        const cliente = data.cliente || 'Cliente no especificado';
+        const precio = data.precio || 'Precio no disponible';
+        const fechaReserva = data.fechaReserva || 'Fecha no disponible';
+        const estado = data.estado || 'Estado no disponible';
 
-    // Configuración inicial
-    doc.setFontSize(16);
-    doc.text('Confirmación de Reserva', 14, 20);
+        // Configuración inicial
+        doc.setFontSize(16);
+        doc.text('Confirmación de Reserva', 14, 20);
 
-    doc.setFontSize(12);
-    doc.text('Detalles de la Reserva', 14, 30);
+        doc.setFontSize(12);
+        doc.text('Detalles de la Reserva', 14, 30);
 
-    // Crear la tabla con jsPDF
-    const tableColumn = ["Campo", "Valor"];
-    const tableRows = [
-        ["ID de Reserva", reservaId],
-        ["Vehículo", vehiculo],
-        ["Precio", precio],
-        ["Cliente", cliente],
-        ["Fecha de Reserva", fechaReserva],
-        ["Estado", estado],
-    ];
+        // Crear la tabla con jsPDF
+        const tableColumn = ["Campo", "Valor"];
+        const tableRows = [
+            ["ID de Reserva", reservaId],
+            ["Vehículo", vehiculo],
+            ["Precio", precio],
+            ["Cliente", cliente],
+            ["Fecha de Reserva", fechaReserva],
+            ["Estado", estado],
+        ];
 
-    // Agregar la tabla al PDF
-    doc.autoTable({
-        startY: 40,
-        head: [tableColumn],
-        body: tableRows,
-        theme: 'grid',
-        styles: {
-            headStyles: { fillColor: [52, 152, 219] }, // Azul claro
-            bodyStyles: { fontSize: 12 },
-        },
-    });
+        // Agregar la tabla al PDF
+        doc.autoTable({
+            startY: 40,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'grid',
+            styles: {
+                headStyles: { fillColor: [52, 152, 219] }, // Azul claro
+                bodyStyles: { fontSize: 12 },
+            },
+        });
 
-    // Descargar el archivo PDF
-    doc.save(`reserva_${reservaId}.pdf`);
-}
+        // Descargar el archivo PDF
+        doc.save(`reserva_${reservaId}.pdf`);
+    }
 </script>
 
 </body>
