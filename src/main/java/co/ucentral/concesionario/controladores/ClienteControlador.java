@@ -45,7 +45,7 @@ public class ClienteControlador {
 
     // Registrar la reserva desde el formulario
     @PostMapping("/registrar")
-    @ResponseBody // Asegura que todas las respuestas sean JSON
+    @ResponseBody
     public ResponseEntity<?> registrarReserva(
             @ModelAttribute Cliente cliente,
             @RequestParam Long vehiculoId,
@@ -76,7 +76,17 @@ public class ClienteControlador {
 
             Reserva reservaGuardada = reservaServicios.guardarReserva(nuevaReserva);
 
-            return ResponseEntity.ok(Map.of("message", "Reserva registrada exitosamente.", "reservaId", reservaGuardada.getId()));
+            // Enviar JSON completo con datos relevantes
+            Map<String, Object> response = Map.of(
+                    "reservaId", reservaGuardada.getId(),
+                    "vehiculo", vehiculoSeleccionado.getMarca() + " " + vehiculoSeleccionado.getModelo(),
+                    "precio", vehiculoSeleccionado.getPrecio(),
+                    "cliente", cliente.getNombreCliente() + " " + cliente.getApellidoCliente(),
+                    "fechaReserva", nuevaReserva.getFechaReserva().toString(),
+                    "estado", nuevaReserva.getEstado()
+            );
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error al registrar la reserva: " + e.getMessage()));
