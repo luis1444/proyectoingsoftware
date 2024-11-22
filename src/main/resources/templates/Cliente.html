@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -122,7 +121,7 @@
                 vehiculos.forEach(vehiculo => {
                     const vehicleItem = document.createElement("div");
                     vehicleItem.classList.add("vehicle-card");
-                    vehicleItem.setAttribute("onclick", `reservarVehiculo('${vehiculo.marca} ${vehiculo.modelo}')`);
+                    vehicleItem.setAttribute("onclick", `reservarVehiculo(${vehiculo.id})`);
                     vehicleItem.innerHTML = `
                         <img src="${vehiculo.foto || 'placeholder.jpg'}" alt="Foto del vehículo">
                         <div class="vehicle-info">
@@ -137,14 +136,11 @@
             .catch(error => console.error('Error al cargar vehículos:', error));
     }
 
-    function reservarVehiculo(nombreVehiculo) {
-        // Reemplaza los espacios en el nombre con guiones para la URL
-        const nombreFormateado = nombreVehiculo.replace(/\s+/g, '-').toLowerCase();
-        // Redirige a la página de reserva con el nombre del vehículo usando la ruta del controlador
-        window.location.href = `/cliente/reservar?vehiculo=${nombreFormateado}`;
+    function reservarVehiculo(vehiculoId) {
+        // Redirige a la página de reserva con el ID del vehículo como parámetro
+        window.location.href = `/cliente/reservar?vehiculoId=${vehiculoId}`;
     }
 
-    // Función para consultar el estado de la reserva
     function consultarEstadoReserva() {
         const reservaId = prompt("Introduce tu ID de reserva para consultar el estado:");
 
@@ -154,7 +150,6 @@
         }
     }
 
-    // Llama a la función para cargar los vehículos al cargar la página
     cargarVehiculos();
 </script>
 

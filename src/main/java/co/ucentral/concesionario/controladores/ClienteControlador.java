@@ -7,11 +7,14 @@ import co.ucentral.concesionario.servicios.ClienteServicios;
 import co.ucentral.concesionario.servicios.ReservaServicios;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/cliente")
@@ -26,60 +29,57 @@ public class ClienteControlador {
     @Autowired
     private ReservaServicios reservaServicios;
 
-    // Mostrar formulario de reserva con el vehículo seleccionado
     @GetMapping("/reservar")
-    public String mostrarFormularioReserva(@RequestParam String vehiculo, Model model) {
-        System.out.println("Vehículo recibido en GET: " + vehiculo);  // Depuración
-        model.addAttribute("vehiculo", vehiculo); // Pasamos el nombre del vehículo al modelo
+
+    public String mostrarFormularioReserva(@RequestParam Long vehiculoId, Model model) {
+        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
+        if (vehiculo == null) {
+            model.addAttribute("error", "El vehículo especificado no existe.");
+            return "error"; // Página de error si el vehículo no existe
+        }
+
+        model.addAttribute("vehiculo", vehiculo); // Pasa el objeto vehículo
         model.addAttribute("cliente", new Cliente());
         return "reservarCliente"; // Nombre del archivo en templates/
     }
 
     // Registrar la reserva desde el formulario
     @PostMapping("/registrar")
-    public String registrarReserva(
-            @ModelAttribute Cliente cliente, // Cliente es recibido automáticamente por Spring
-            @RequestParam String vehiculo,  // Recibimos el nombre del vehículo desde el formulario
-            @RequestParam String paymentMethod,
-            @RequestParam String deliveryDate,
-            Model model) {
+    @ResponseBody // Asegura que todas las respuestas sean JSON
+    public ResponseEntity<?> registrarReserva(
+            @ModelAttribute Cliente cliente,
+            @RequestParam Long vehiculoId,
+            @RequestParam String formaPago,
+            @RequestParam String fechaEntregaDeseada) {
         try {
-            System.out.println("Datos recibidos en POST (Cliente): " + cliente);  // Depuración
-            System.out.println("Vehículo recibido en POST (Nombre): " + vehiculo);  // Depuración
-
-            // Validar y obtener el vehículo por nombre
-            Vehiculo vehiculoSeleccionado = vehiculoServicios.obtenerVehiculoPorNombre(vehiculo);
+            Vehiculo vehiculoSeleccionado = vehiculoServicios.obtenerPorId(vehiculoId);
             if (vehiculoSeleccionado == null) {
-                model.addAttribute("error", "El vehículo no existe.");
-                return "reservarCliente";
+                return ResponseEntity.badRequest().body(Map.of("error", "El vehículo especificado no existe."));
             }
 
-            // Validar si el cliente existe o crearlo
+            cliente.setVehiculo(vehiculoSeleccionado);
+
             Cliente clienteExistente = clienteServicios.obtenerClientePorEmail(cliente.getCorreoElectronico());
             if (clienteExistente == null) {
-                clienteServicios.guardarCliente(cliente);  // Guardamos el cliente si no existe
+                clienteServicios.guardarCliente(cliente);
             } else {
-                cliente = clienteExistente; // Usamos el cliente existente
+                cliente = clienteExistente;
             }
 
-            // Crear la reserva
             Reserva nuevaReserva = new Reserva();
             nuevaReserva.setCliente(cliente);
             nuevaReserva.setVehiculo(vehiculoSeleccionado);
             nuevaReserva.setEstado("Pendiente");
-            nuevaReserva.setFechaReserva(new Date(System.currentTimeMillis())); // Fecha actual
-            nuevaReserva.setFechaInicio(Date.valueOf(deliveryDate));
-            nuevaReserva.setFechaFin(Date.valueOf(deliveryDate)); // Ajusta según lógica de negocio
+            nuevaReserva.setFechaReserva(new Date(System.currentTimeMillis()));
+            nuevaReserva.setFechaInicio(Date.valueOf(fechaEntregaDeseada));
+            nuevaReserva.setFechaFin(Date.valueOf(fechaEntregaDeseada));
 
-            // Guardar la reserva
             Reserva reservaGuardada = reservaServicios.guardarReserva(nuevaReserva);
 
-            // Redirigir a la vista de confirmación
-            return "redirect:/cliente/reservaConfirmada/" + reservaGuardada.getId();
+            return ResponseEntity.ok(Map.of("message", "Reserva registrada exitosamente.", "reservaId", reservaGuardada.getId()));
         } catch (Exception e) {
-            // Manejo de errores
-            model.addAttribute("error", "Error al registrar la reserva: " + e.getMessage());
-            return "reservarCliente"; // Volver al formulario en caso de error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al registrar la reserva: " + e.getMessage()));
         }
     }
 
