@@ -69,12 +69,12 @@
         }
     </style>
     <script>
+        // Función para entregar una reserva
         async function entregarReserva(reservaId) {
             try {
-                const response = await fetch('/reservas/entregar', {
+                const response = await fetch('/reservas/marcarEntregada/' + reservaId, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ reservaId })
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (response.ok) {
@@ -107,6 +107,7 @@
     </tbody>
 </table>
 <script>
+    // Función para cargar las reservas pendientes desde el servidor
     async function cargarReservas() {
         const response = await fetch('/reservas/pendientes');
         const reservas = await response.json();

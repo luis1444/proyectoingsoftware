@@ -1,12 +1,15 @@
 package co.ucentral.concesionario.servicios;
 
+import co.ucentral.concesionario.persistencia.entidades.Inventario;
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
+import co.ucentral.concesionario.persistencia.repositorios.InventarioRepositorio;
 import co.ucentral.concesionario.persistencia.repositorios.PedidoRepositorio;
 import co.ucentral.concesionario.persistencia.repositorios.VehiculoRepositorio;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,12 +19,14 @@ import java.util.stream.Collectors;
 @Service
 public class PedidoServicios {
 
-    PedidoRepositorio pedidoRepositorio;
-    VehiculoRepositorio vehiculoRepositorio;
+    private final PedidoRepositorio pedidoRepositorio;
+    private final VehiculoRepositorio vehiculoRepositorio;
+    private final InventarioRepositorio inventarioRepositorio;
     private final VehiculoServicios vehiculoServicios;
 
-
-
+    /**
+     * Registrar un nuevo pedido.
+     */
     public void registrarPedido(Long vehiculoId, int cantidad, String pais) {
         // Verificar que el vehículo existe
         Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
@@ -34,36 +39,40 @@ public class PedidoServicios {
         pedido.setVehiculo(vehiculo);
         pedido.setCantidad(cantidad);
         pedido.setPais(pais);
-        pedido.setFecha(LocalDate.now()); // Fecha actual
+        pedido.setFecha(LocalDate.now());
         pedido.setEstado("Pendiente"); // Estado inicial
 
         // Guardar el pedido
         pedidoRepositorio.save(pedido);
     }
 
-
+    /**
+     * Obtener todos los pedidos.
+     */
     public List<Pedido> obtenerTodos() {
         return pedidoRepositorio.findAll();
     }
 
-    // Obtener pedido por ID
+    /**
+     * Obtener un pedido por ID.
+     */
     public Pedido obtenerPorId(Long id) {
         return pedidoRepositorio.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con ID: " + id));
     }
-    // Actualizar estado de un pedido
+
+    /**
+     * Actualizar el estado de un pedido.
+     */
     public void actualizarEstado(Long id, String nuevoEstado) {
-        Optional<Pedido> pedidoExistente = pedidoRepositorio.findById(id);
-        if (pedidoExistente.isPresent()) {
-            Pedido pedido = pedidoExistente.get();
-            pedido.setEstado(nuevoEstado);
-            pedidoRepositorio.save(pedido);
-        } else {
-            throw new RuntimeException("Pedido no encontrado con ID: " + id);
-        }
+        Pedido pedido = obtenerPorId(id);
+        pedido.setEstado(nuevoEstado);
+        pedidoRepositorio.save(pedido);
     }
 
-
+    /**
+     * Borrar un pedido por ID.
+     */
     public boolean borrarPedido(Long id) {
         try {
             pedidoRepositorio.deleteById(id);
@@ -74,40 +83,50 @@ public class PedidoServicios {
         }
     }
 
+    /**
+     * Obtener pedidos por estado.
+     */
     public List<Pedido> obtenerPedidosPorEstado(String estado) {
         List<Pedido> pedidos = pedidoRepositorio.findByEstado(estado);
-        if (pedidos == null) {
-            return List.of(); // Retorna una lista vacía si no hay resultados
-        }
-        return pedidos;
+        return pedidos != null ? pedidos : List.of();
     }
 
+    /**
+     * Entregar un pedido.
+     */
+    @Transactional
     public void entregarPedido(Long pedidoId) {
+        // Buscar el pedido por su ID
         Pedido pedido = pedidoRepositorio.findById(pedidoId)
                 .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));
+
         Vehiculo vehiculo = pedido.getVehiculo();
 
-        // Verificar stock disponible
-        if (vehiculo.getCantidadStock() < pedido.getCantidad()) {
-            throw new IllegalArgumentException("No hay suficiente stock para completar el pedido.");
+        // Buscar o crear el inventario relacionado con el vehículo
+        Inventario inventario = inventarioRepositorio.findByVehiculoId(vehiculo.getId());
+        if (inventario == null) {
+            // Si no existe inventario, crearlo
+            inventario = new Inventario();
+            inventario.setVehiculo(vehiculo);
+            inventario.setCantidad(0); // Inicializar la cantidad en 0
         }
 
-        // Actualizar stock
-        vehiculo.setCantidadStock(vehiculo.getCantidadStock() - pedido.getCantidad());
-        vehiculoRepositorio.save(vehiculo);
+        // Actualizar la cantidad del inventario
+        inventario.setCantidad(inventario.getCantidad() + pedido.getCantidad());
+        inventarioRepositorio.save(inventario);
 
-        // Actualizar estado del pedido
-        pedido.setEstado("Exportado");
+        // Actualizar el estado del pedido a "Entregado"
+        pedido.setEstado("Entregado");
         pedidoRepositorio.save(pedido);
+
+        // Eliminar el pedido de la base de datos
+        pedidoRepositorio.delete(pedido);
     }
 
+    /**
+     * Obtener todos los pedidos pendientes.
+     */
     public List<Pedido> obtenerPedidosPendientes() {
-        List<Pedido> pedidos = obtenerTodos(); // Suponiendo que existe un método obtenerTodos
-        return pedidos.stream()
-                .filter(pedido -> "Pendiente".equalsIgnoreCase(pedido.getEstado()))
-                .collect(Collectors.toList());
+        return pedidoRepositorio.findByEstado("Pendiente");
     }
-
-
-
 }

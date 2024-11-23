@@ -2,7 +2,6 @@ package co.ucentral.concesionario.controladores;
 
 import co.ucentral.concesionario.persistencia.entidades.Inventario;
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
-import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
 import co.ucentral.concesionario.servicios.InventarioServicios;
 import co.ucentral.concesionario.servicios.PedidoServicios;
 import jakarta.transaction.Transactional;
@@ -19,9 +18,8 @@ import java.util.List;
 @RequestMapping("/inventario")
 public class InventarioControlador {
 
-     InventarioServicios inventarioServicios;
-     PedidoServicios pedidoServicios;
-
+    private final InventarioServicios inventarioServicios;
+    private final PedidoServicios pedidoServicios;
 
     @PostMapping
     public ResponseEntity<String> registrarInventario(@RequestBody Inventario inventario) {
@@ -33,25 +31,19 @@ public class InventarioControlador {
         }
     }
 
-    // Obtener todos los vehículos en el inventario
     @GetMapping
     public ResponseEntity<List<Inventario>> obtenerTodos() {
-        List<Inventario> inventarios = inventarioServicios.obtenerTodos();
-        return ResponseEntity.ok(inventarios);
+        return ResponseEntity.ok(inventarioServicios.obtenerTodos());
     }
 
-    // Obtener un vehículo específico en el inventario por ID
     @GetMapping("/{id}")
     public ResponseEntity<Inventario> obtenerPorId(@PathVariable Long id) {
         Inventario inventario = inventarioServicios.obtenerPorId(id);
-        if (inventario != null) {
-            return ResponseEntity.ok(inventario);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return inventario != null
+                ? ResponseEntity.ok(inventario)
+                : ResponseEntity.notFound().build();
     }
 
-    // Actualizar la cantidad de un vehículo en el inventario
     @PutMapping("/{id}/cantidad")
     public ResponseEntity<String> actualizarCantidadInventario(@PathVariable Long id, @RequestParam int cantidad) {
         try {
@@ -62,7 +54,6 @@ public class InventarioControlador {
         }
     }
 
-    // Vender un vehículo, restando su cantidad del inventario
     @PutMapping("/{id}/vender")
     public ResponseEntity<String> venderVehiculo(@PathVariable Long id, @RequestParam int cantidad) {
         try {
@@ -77,33 +68,10 @@ public class InventarioControlador {
     @Transactional
     public ResponseEntity<String> entregarPedido(@PathVariable Long id) {
         try {
-            // Lógica para entregar el pedido y actualizar el inventario
-            Pedido pedido = pedidoServicios.obtenerPorId(id);
-            if (pedido == null) {
-                return ResponseEntity.status(404).body("Pedido no encontrado.");
-            }
-
-            if (pedido.getEstado().equals("Entregado")) {
-                return ResponseEntity.status(400).body("El pedido ya ha sido entregado.");
-            }
-
-            Vehiculo vehiculo = pedido.getVehiculo();
-            int cantidadPedida = pedido.getCantidad();
-
-            Inventario inventario = inventarioServicios.obtenerPorVehiculoId(vehiculo.getId());
-            if (inventario == null) {
-                inventario = new Inventario();
-                inventario.setVehiculo(vehiculo);
-                inventario.setCantidad(cantidadPedida);
-                inventarioServicios.registrarInventario(inventario);
-            } else {
-                inventario.setCantidad(inventario.getCantidad() + cantidadPedida);
-                inventarioServicios.actualizarCantidadInventario(inventario.getId(), inventario.getCantidad());
-            }
-
             pedidoServicios.entregarPedido(id);
-
             return ResponseEntity.ok("Pedido entregado y actualizado en inventario.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error al entregar el pedido: " + e.getMessage());
         }
@@ -111,62 +79,33 @@ public class InventarioControlador {
 
     @GetMapping("/pedidos")
     public String mostrarPedidos(Model model) {
-        List<Pedido> pedidos = pedidoServicios.obtenerTodos();
-        System.out.println("Pedidos recuperados: " + pedidos); // Verifica datos
-        model.addAttribute("pedidos", pedidos);
-        return "verInventario"; // Nombre del archivo HTML
+        model.addAttribute("pedidos", pedidoServicios.obtenerTodos());
+        return "verInventario"; // Renderiza la vista correspondiente
     }
 
     @GetMapping("/verInventario")
     public String mostrarInventario(Model model) {
         try {
-            List<Inventario> inventarios = inventarioServicios.obtenerTodos();
-            List<Pedido> pedidosPendientes = pedidoServicios.obtenerTodos(); // Ajustar lógica según necesidad
-
-            model.addAttribute("inventarios", inventarios);
-            model.addAttribute("pedidosPendientes", pedidosPendientes);
-
+            model.addAttribute("inventarios", inventarioServicios.obtenerTodos());
+            model.addAttribute("pedidosPendientes", pedidoServicios.obtenerPedidosPendientes());
             return "verInventario";
         } catch (Exception e) {
             model.addAttribute("error", "Error al cargar inventario y pedidos: " + e.getMessage());
-            return "error"; // Renderiza una página de error personalizada
+            return "error";
         }
     }
 
     @PostMapping("/aceptarPedido")
     @Transactional
     public String aceptarPedido(@RequestParam Long pedidoId, Model model) {
-        System.out.println("pedidoId recibido: " + pedidoId);
         try {
-            Pedido pedido = pedidoServicios.obtenerPorId(pedidoId);
-            if (pedido == null || !pedido.getEstado().equals("Pendiente")) {
-                model.addAttribute("error", "El pedido no es válido o ya ha sido procesado.");
-                return "redirect:/pedidos/inventario";
-            }
-
-            Vehiculo vehiculo = pedido.getVehiculo();
-            int cantidadPedida = pedido.getCantidad();
-
-            // Actualizar el inventario
-            Inventario inventario = inventarioServicios.obtenerPorVehiculoId(vehiculo.getId());
-            if (inventario == null) {
-                inventario = new Inventario();
-                inventario.setVehiculo(vehiculo);
-                inventario.setCantidad(cantidadPedida);
-                inventarioServicios.registrarInventario(inventario);
-            } else {
-                inventario.setCantidad(inventario.getCantidad() + cantidadPedida);
-                inventarioServicios.actualizarCantidadInventario(inventario.getId(), cantidadPedida);
-            }
-
-            // Cambiar estado del pedido
             pedidoServicios.entregarPedido(pedidoId);
-
             model.addAttribute("mensaje", "Pedido aceptado y actualizado en el inventario.");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
         } catch (Exception e) {
             model.addAttribute("error", "Error al aceptar el pedido: " + e.getMessage());
         }
-        return "redirect:/inventario/VerInventario";
+        return "redirect:/inventario/verInventario";
     }
-
 }
