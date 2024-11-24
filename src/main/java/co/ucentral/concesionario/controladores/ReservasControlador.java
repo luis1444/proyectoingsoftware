@@ -116,4 +116,5 @@ public class ReservasControlador {
 
         return "redirect:/reservas/pendientes"; // Redirige para actualizar la vista
     }
+
 }
