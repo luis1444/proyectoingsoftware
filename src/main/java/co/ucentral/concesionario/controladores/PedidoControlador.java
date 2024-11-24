@@ -106,10 +106,18 @@ public class PedidoControlador {
         try {
             pedidoServicios.entregarPedido(pedidoId);
             model.addAttribute("mensaje", "Pedido entregado con éxito.");
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al entregar el pedido: " + e.getMessage());
+            model.addAttribute("tipo", "success"); // SweetAlert2
+        } catch (IllegalArgumentException e) { // Manejo de excepciones conocidas
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "warning"); // SweetAlert2
+        } catch (RuntimeException e) { // Manejo de errores del servicio
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "error"); // SweetAlert2
+        } catch (Exception e) { // Manejo de errores inesperados
+            model.addAttribute("mensaje", "Ocurrió un error inesperado.");
+            model.addAttribute("tipo", "error"); // SweetAlert2
         }
-        return "redirect:/pedidos/entregarPedidos"; // Redirige para recargar la lista actualizada
+        return mostrarEntregarPedidos(model); // Carga nuevamente la vista actualizada
     }
 
 

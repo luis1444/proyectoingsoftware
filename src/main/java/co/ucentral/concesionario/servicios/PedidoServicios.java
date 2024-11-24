@@ -96,32 +96,47 @@ public class PedidoServicios {
      */
     @Transactional
     public void entregarPedido(Long pedidoId) {
-        // Buscar el pedido por su ID
         Pedido pedido = pedidoRepositorio.findById(pedidoId)
-                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe."));
+                .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado con ID: " + pedidoId));
 
         Vehiculo vehiculo = pedido.getVehiculo();
 
-        // Buscar o crear el inventario relacionado con el vehículo
-        Inventario inventario = inventarioRepositorio.findByVehiculoId(vehiculo.getId());
-        if (inventario == null) {
-            // Si no existe inventario, crearlo
-            inventario = new Inventario();
-            inventario.setVehiculo(vehiculo);
-            inventario.setCantidad(0); // Inicializar la cantidad en 0
+        // Verificar stock disponible
+        if (vehiculo.getCantidadStock() < pedido.getCantidad()) {
+            throw new IllegalArgumentException("Stock insuficiente para el vehículo "
+                    + vehiculo.getMarca() + " " + vehiculo.getModelo() + ". Disponible: "
+                    + vehiculo.getCantidadStock() + ", solicitado: " + pedido.getCantidad());
         }
 
-        // Actualizar la cantidad del inventario
-        inventario.setCantidad(inventario.getCantidad() + pedido.getCantidad());
-        inventarioRepositorio.save(inventario);
+        try {
+            // Actualizar stock del vehículo
+            vehiculo.setCantidadStock(vehiculo.getCantidadStock() - pedido.getCantidad());
+            vehiculoRepositorio.save(vehiculo);
 
-        // Actualizar el estado del pedido a "Entregado"
-        pedido.setEstado("Entregado");
-        pedidoRepositorio.save(pedido);
+            // Actualizar inventario
+            Inventario inventario = inventarioRepositorio.findByVehiculoId(vehiculo.getId());
+            if (inventario == null) {
+                inventario = new Inventario();
+                inventario.setVehiculo(vehiculo);
+                inventario.setCantidad(0);
+            }
 
-        // Eliminar el pedido de la base de datos
-        pedidoRepositorio.delete(pedido);
+            inventario.setCantidad(inventario.getCantidad() + pedido.getCantidad());
+            inventarioRepositorio.save(inventario);
+
+            // Cambiar el estado del pedido
+            pedido.setEstado("Entregado");
+            pedidoRepositorio.save(pedido);
+
+            // Eliminar pedido entregado
+
+        } catch (Exception e) {
+            // Lanzar una excepción para que el controlador la maneje
+            throw new RuntimeException("Error al procesar el pedido: " + e.getMessage());
+        }
     }
+
+
 
     /**
      * Obtener todos los pedidos pendientes.
