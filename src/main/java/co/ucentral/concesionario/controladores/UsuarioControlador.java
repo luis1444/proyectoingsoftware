@@ -34,6 +34,11 @@ public class UsuarioControlador {
         return "iniciosesion";
     }
 
+    @GetMapping("/cerrar-sesion")
+    public String cerrarSesion() {
+        return "redirect:/iniciosesion";
+    }
+
     @PostMapping("/iniciar-sesion")
     public String iniciarSesion(String usuario, String contrasena, Model model) {
         Usuario usuarioAutenticado = usuarioServicio.autenticarUsuario(usuario, contrasena);
@@ -66,5 +71,6 @@ public class UsuarioControlador {
         return "pantallaAdministrador";
     }
 
-
+    @GetMapping("/pantallaCliente")
+    public String mostrarPantallaCliente(Model model) {return "Cliente.html";}
 }

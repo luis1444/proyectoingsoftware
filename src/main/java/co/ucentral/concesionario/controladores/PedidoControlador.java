@@ -2,6 +2,7 @@ package co.ucentral.concesionario.controladores;
 
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
+import co.ucentral.concesionario.servicios.InventarioServicios;
 import co.ucentral.concesionario.servicios.PedidoServicios;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import jakarta.transaction.Transactional;
@@ -22,6 +23,8 @@ public class PedidoControlador {
     @Autowired
     private VehiculoServicios vehiculoServicios;
 
+    InventarioServicios inventarioServicios;
+
     // Registrar un nuevo pedido
     @PostMapping("/registrarPedido")
     public String registrarPedido(@RequestParam Long vehiculoId,
@@ -34,7 +37,7 @@ public class PedidoControlador {
             return "pedido_exitoso"; // Página de éxito
         } catch (Exception e) {
             model.addAttribute("error", "Error al registrar el pedido: " + e.getMessage());
-            return "pedido_error"; // Página de error
+            return "error"; // Página de error
         }
     }
 
@@ -102,9 +105,22 @@ public class PedidoControlador {
         try {
             pedidoServicios.entregarPedido(pedidoId);
             model.addAttribute("mensaje", "Pedido entregado con éxito.");
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al entregar el pedido: " + e.getMessage());
+            model.addAttribute("tipo", "success"); // SweetAlert2
+        } catch (IllegalArgumentException e) { // Manejo de excepciones conocidas
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "warning"); // SweetAlert2
+        } catch (RuntimeException e) { // Manejo de errores del servicio
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "error"); // SweetAlert2
+        } catch (Exception e) { // Manejo de errores inesperados
+            model.addAttribute("mensaje", "Ocurrió un error inesperado.");
+            model.addAttribute("tipo", "error"); // SweetAlert2
         }
-        return "redirect:/pedidos/entregarPedidos"; // Redirige para recargar la lista actualizada
+        return mostrarEntregarPedidos(model); // Carga nuevamente la vista actualizada
     }
+
+
+
+
+
 }

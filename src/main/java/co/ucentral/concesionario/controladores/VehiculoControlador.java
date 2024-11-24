@@ -173,7 +173,7 @@ public class VehiculoControlador {
         if (vehiculo != null) {
             vehiculoServicios.borrar(vehiculo);
         }
-        return "redirect:/vehiculos";  // Redirige al listado de vehículos
+        return "redirect:/modificarVehiculo";  // Redirige al listado de vehículos
     }
 
     @GetMapping("/modificarVehiculo")
@@ -252,8 +252,6 @@ public class VehiculoControlador {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
         }
     }
-
-
 
 
 }

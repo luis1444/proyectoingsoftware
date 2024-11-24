@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Estado de la Reserva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .reservation-status-container {
+      background-color: #2c3e50;
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 600px;
+    }
+    .reservation-status-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .status-card {
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 15px 0;
+    }
+    .status-card p {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .status-card .status-label {
+      font-weight: bold;
+    }
+    .status-card .status-value {
+      font-size: 16px;
+      color: #ecf0f1;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .button-container button {
+      padding: 10px 20px;
+      background-color: #34495e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0 10px;
+    }
+    .button-container button:hover {
+      background-color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+<div class="reservation-status-container">
+  <h2>Estado de la Reserva</h2>
+
+  <!-- Mensaje de éxito o error -->
+  <div th:if="${mensaje}" style="color: #2ecc71; margin-bottom: 10px;">
+    <p th:text="${mensaje}"></p>
+  </div>
+  <div th:if="${error}" style="color: #e74c3c; margin-bottom: 10px;">
+    <p th:text="${error}"></p>
+  </div>
+
+  <!-- Detalles de la reserva -->
+  <div th:if="${reserva}" class="status-card">
+    <p><span class="status-label">ID de la Reserva:</span> <span class="status-value" th:text="${reserva.id}"></span></p>
+    <p><span class="status-label">Nombre del Cliente:</span> <span class="status-value" th:text="${reserva.cliente.nombreCliente}"></span></p>
+    <p><span class="status-label">Apellido del Cliente:</span> <span class="status-value" th:text="${reserva.cliente.apellidoCliente}"></span></p>
+    <p><span class="status-label">Correo Electrónico:</span> <span class="status-value" th:text="${reserva.cliente.correoElectronico}"></span></p>
+    <p><span class="status-label">Teléfono:</span> <span class="status-value" th:text="${reserva.cliente.numeroTelefono}"></span></p>
+    <p><span class="status-label">Estado:</span> <span class="status-value" th:text="${reserva.estado}"></span></p>
+  </div>
+
+  <!-- Botón para cancelar la reserva (si no está entregada o cancelada) -->
+  <div class="button-container" th:if="${reserva.estado != 'Entregado' and reserva.estado != 'Cancelada'}">
+    <form th:action="@{/reservas/cancelar/{id}(id=${reserva.id})}" method="post">
+      <button type="submit">Cancelar Reserva</button>
+    </form>
+  </div>
+
+  <!-- Botón de Volver -->
+  <div class="button-container">
+    <button onclick="volver()" class="submit-button" style="background-color:  #2c3e50; margin-top: 10px;">Volver</button>
+  </div>
+</div>
+<script>
+  function volver() {
+    window.location.href = "/pantallaCliente";
+  }
+</script>
+</body>
+</html>

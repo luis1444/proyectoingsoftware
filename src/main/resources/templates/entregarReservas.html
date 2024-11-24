@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entregar Pedidos</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Importa SweetAlert -->
+    <title>Reservas Pendientes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,7 +54,6 @@
             border: none;
             cursor: pointer;
             font-size: 16px;
-            text-align: center;
             border-radius: 5px;
         }
 
@@ -63,83 +61,84 @@
             background-color: #16a085;
         }
 
-        .no-pedidos {
+        .no-reservas {
             text-align: center;
             padding: 20px;
             font-size: 1.2rem;
             color: #888;
         }
     </style>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
+<h1>Reservas Pendientes para Entregar</h1>
 
-<h1>Pedidos Pendientes para Entregar</h1>
+<!-- Verificar si hay mensaje de error o éxito -->
+<div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+<div th:if="${error}" class="error" th:text="${error}"></div>
 
 <table>
     <thead>
     <tr>
-        <th>ID Pedido</th>
+        <th>ID Reserva</th>
         <th>Vehículo</th>
-        <th>Cantidad</th>
         <th>Estado</th>
-        <th>País de Destino</th>
         <th>Acción</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="pedido : ${pedidos}">
-        <td th:text="${pedido.id}"></td>
-        <td th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo}"></td>
-        <td th:text="${pedido.cantidad}"></td>
-        <td th:text="${pedido.estado}"></td>
-        <td th:text="${pedido.pais}"></td>
+    <!-- Verificar si hay reservas -->
+    <tr th:each="reserva : ${reservas}">
+        <td th:text="${reserva.id}"></td>
+        <td th:text="${reserva.vehiculo.marca} + ' ' + ${reserva.vehiculo.modelo}"></td>
+        <td th:text="${reserva.estado}"></td>
         <td>
-            <form th:action="@{/pedidos/entregar}" method="post" onsubmit="return confirmarEntrega(event, this)">
-                <input type="hidden" name="pedidoId" th:value="${pedido.id}">
-                <button class="btn-entregar" type="submit">Entregar</button>
+            <form th:action="@{/reservas/entregar}" method="post" class="form-entregar">
+                <input type="hidden" name="reservaId" th:value="${reserva.id}">
+                <button class="btn-entregar" type="button" onclick="confirmarEntrega(this)">Entregar</button>
             </form>
         </td>
     </tr>
-    <div th:if="${#lists.isEmpty(pedidos)}" class="no-pedidos">
-        <p>No hay pedidos pendientes.</p>
-    </div>
+
+    <!-- Mostrar un mensaje si no hay reservas -->
+    <tr th:if="${#lists.isEmpty(reservas)}">
+        <td colspan="6" class="no-reservas">No hay reservas pendientes para entregar.</td>
+    </tr>
     </tbody>
 </table>
 
+<!-- SweetAlert2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Muestra un mensaje de confirmación al entregar un pedido
-    function confirmarEntrega(event, form) {
-        event.preventDefault(); // Evita el envío inmediato del formulario
+    function confirmarEntrega(button) {
+        // Mostrar SweetAlert2 de confirmación
         Swal.fire({
             title: '¿Estás seguro?',
-            text: "El pedido será marcado como entregado.",
+            text: "¿Quieres marcar esta reserva como entregada?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#1abc9c',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Sí, entregar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Si el usuario confirma, enviar el formulario
+                const form = button.closest('form');
                 form.submit();
+
+                // Mostrar mensaje de éxito después de la redirección
+                Swal.fire({
+                    title: '¡Reserva entregada!',
+                    text: 'La reserva se ha marcado como entregada correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#1abc9c',
+                    confirmButtonText: 'Aceptar'
+                });
             }
         });
     }
-
-    // Mostrar mensajes dinámicos del backend
-    window.onload = function () {
-        const mensaje = /*[[${mensaje}]]*/ 'null';
-        const tipo = /*[[${tipo}]]*/ 'null';
-
-        if (mensaje !== 'null' && tipo !== 'null') {
-            Swal.fire({
-                icon: tipo,
-                title: tipo === 'success' ? '¡Éxito!' : (tipo === 'warning' ? 'Advertencia' : 'Error'),
-                text: mensaje
-            });
-        }
-    };
 </script>
-
 </body>
 </html>
