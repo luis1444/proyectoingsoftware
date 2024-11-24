@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Fabricante</title>
+    <style>
+        /* Estilos básicos */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            background-color: #ffffff;
+        }
+        /* Barra lateral */
+        .sidebar {
+            width: 250px;
+            background-color: #2a3f54;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        .sidebar h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar .button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background-color: #1abc9c;
+            color: #ffffff;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .sidebar .button:hover {
+            background-color: #16a085;
+        }
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .catalog {
+            background-color: #2a3f54;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .vehicle-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .vehicle-item img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+        }
+        /* Estilo para el iframe modal */
+        .iframe-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .iframe-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            width: 90%; /* Ancho relativo a la pantalla para adaptarse */
+            max-width: 800px; /* Ancho máximo en pantallas grandes */
+            height: 90%; /* Altura relativa para pantallas pequeñas */
+            max-height: 900px; /* Altura máxima */
+            overflow: auto; /* Activa la barra de desplazamiento si es necesario */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Barra lateral con botones -->
+    <div class="sidebar">
+        <h2>Panel de Fabricante</h2>
+        <a href="#" class="button" onclick="abrirRegistro()">Registrar Vehículos</a>
+        <a href="#" class="button" onclick="consultarPedidos()">Consultar Pedidos</a>
+        <a href="#" class="button" onclick="verificarDisponibilidad()">Verificar Disponibilidad</a>
+        <a href="#" class="button" onclick="abrirModificar()">Modificar Catálogo</a>
+        <a href="#" class="button" onclick="entregarPedidos()">Entregar Pedidos</a>
+        <!-- Botón de Cerrar Sesión -->
+        <a href="#" class="button" onclick="cerrarSesion()">Cerrar Sesión</a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="catalog">CATÁLOGO DE VEHÍCULOS</div>
+        <div class="vehicle-list" id="vehicleList">
+            <!-- Aquí se cargarán los vehículos registrados -->
+        </div>
+    </div>
+</div>
+
+<!-- Ventana emergente con iframe para el formulario -->
+<div class="iframe-modal" id="iframeModal">
+    <div class="iframe-container">
+        <button class="close-btn" onclick="cerrarModal()">X</button>
+        <iframe id="iframeRegistro" src=""></iframe>
+    </div>
+</div>
+
+<script>
+    function abrirRegistro() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/registroVehiculo";
+    }
+
+    function abrirModificar() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/modificarVehiculo";
+    }
+
+    function cerrarModal() {
+        document.getElementById("iframeModal").style.display = "none";
+        document.getElementById("iframeRegistro").src = "";
+    }
+
+    document.getElementById("iframeModal").addEventListener("click", function(event) {
+        if (event.target === this) {
+            cerrarModal();
+        }
+    });
+
+    function verificarDisponibilidad() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/verificarDisponibilidad";
+    }
+
+    function consultarPedidos() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/pedidos/consultarPedidos";
+    }
+
+    function entregarPedidos() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/pedidos/entregarPedidos"; // Nueva ruta para entregar pedidos
+    }
+
+    function cerrarSesion() {
+        // Aquí puedes agregar la lógica para cerrar sesión, como redirigir al login o borrar la sesión
+        window.location.href = "/iniciosesion"; // Por ejemplo, redirige a la página de cierre de sesión
+    }
+
+    function cargarVehiculos() {
+        const vehicleList = document.getElementById("vehicleList");
+        vehicleList.innerHTML = "";
+
+        fetch('/api/vehiculos')
+            .then(response => response.json())
+            .then(vehiculos => {
+                const ultimosVehiculos = vehiculos.slice(-3);
+                ultimosVehiculos.forEach(vehiculo => {
+                    const vehicleItem = document.createElement("div");
+                    vehicleItem.classList.add("vehicle-item");
+                    vehicleItem.innerHTML = `
+                        <span><strong>Marca:</strong> ${vehiculo.marca}</span>
+                        <span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
+                        <span><strong>Año:</strong> ${vehiculo.anio}</span>
+                        <span><strong>Color:</strong> ${vehiculo.color}</span>
+                        <span><strong>Precio:</strong> ${vehiculo.precio}</span>
+                        <span><strong>Combustible:</strong> ${vehiculo.tipoCombustible}</span>
+                        <span><strong>País:</strong> ${vehiculo.paisOrigen}</span>
+                        ${vehiculo.foto ? `<img src="${vehiculo.foto}" alt="Foto del vehículo">` : ''}
+                    `;
+                    vehicleList.appendChild(vehicleItem);
+                });
+            })
+            .catch(error => console.error('Error al cargar vehículos:', error));
+    }
+
+    cargarVehiculos();
+</script>
+</body>
+</html>

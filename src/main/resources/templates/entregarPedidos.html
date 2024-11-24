@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entregar Pedidos</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Importa SweetAlert -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2a3f54;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2a3f54;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #f3f4f6;
+        }
+
+        .btn-entregar {
+            padding: 10px 15px;
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .btn-entregar:hover {
+            background-color: #16a085;
+        }
+
+        .no-pedidos {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Pedidos Pendientes para Entregar</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID Pedido</th>
+        <th>Vehículo</th>
+        <th>Cantidad</th>
+        <th>Estado</th>
+        <th>País de Destino</th>
+        <th>Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="pedido : ${pedidos}">
+        <td th:text="${pedido.id}"></td>
+        <td th:text="${pedido.vehiculo.marca} + ' ' + ${pedido.vehiculo.modelo}"></td>
+        <td th:text="${pedido.cantidad}"></td>
+        <td th:text="${pedido.estado}"></td>
+        <td th:text="${pedido.pais}"></td>
+        <td>
+            <form th:action="@{/pedidos/entregar}" method="post" onsubmit="return confirmarEntrega(event, this)">
+                <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                <button class="btn-entregar" type="submit">Entregar</button>
+            </form>
+        </td>
+    </tr>
+    <div th:if="${#lists.isEmpty(pedidos)}" class="no-pedidos">
+        <p>No hay pedidos pendientes.</p>
+    </div>
+    </tbody>
+</table>
+
+<script>
+    // Muestra un mensaje de confirmación al entregar un pedido
+    function confirmarEntrega(event, form) {
+        event.preventDefault(); // Evita el envío inmediato del formulario
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "El pedido será marcado como entregado.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, entregar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    // Mostrar mensajes dinámicos del backend
+    window.onload = function () {
+        const mensaje = /*[[${mensaje}]]*/ 'null';
+        const tipo = /*[[${tipo}]]*/ 'null';
+
+        if (mensaje !== 'null' && tipo !== 'null') {
+            Swal.fire({
+                icon: tipo,
+                title: tipo === 'success' ? '¡Éxito!' : (tipo === 'warning' ? 'Advertencia' : 'Error'),
+                text: mensaje
+            });
+        }
+    };
+</script>
+
+</body>
+</html>

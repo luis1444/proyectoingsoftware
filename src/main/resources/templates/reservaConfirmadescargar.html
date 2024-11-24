@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Reserva</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .confirmation-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+        .download-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="confirmation-container">
+    <h2>Reserva Confirmada</h2>
+    <p>ID del Vehículo: <span id="vehicleId"></span></p>
+    <p>Nombre: <span id="firstName"></span></p>
+    <p>Apellido: <span id="lastName"></span></p>
+    <p>Correo Electrónico: <span id="email"></span></p>
+    <p>Número de Teléfono: <span id="phone"></span></p>
+    <p>Dirección de Entrega: <span id="address"></span></p>
+    <p>Forma de Pago: <span id="paymentMethod"></span></p>
+    <p>Fecha de Entrega Deseada: <span id="deliveryDate"></span></p>
+    <button class="download-button" onclick="downloadPDF()">Descargar Confirmación</button>
+</div>
+
+<script>
+    // Función para obtener parámetros de la URL
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param) || '';
+    }
+
+    // Rellenar los datos en la página
+    document.getElementById("vehicleId").textContent = getQueryParam("vehicleId");
+    document.getElementById("firstName").textContent = getQueryParam("firstName");
+    document.getElementById("lastName").textContent = getQueryParam("lastName");
+    document.getElementById("email").textContent = getQueryParam("email");
+    document.getElementById("phone").textContent = getQueryParam("phone");
+    document.getElementById("address").textContent = getQueryParam("address");
+    document.getElementById("paymentMethod").textContent = getQueryParam("paymentMethod");
+    document.getElementById("deliveryDate").textContent = getQueryParam("deliveryDate");
+
+    // Generar y descargar PDF
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Agregar contenido al PDF
+        doc.text("Confirmación de Reserva", 20, 20);
+        doc.text(`ID del Vehículo: ${getQueryParam("vehicleId")}`, 20, 30);
+        doc.text(`Nombre: ${getQueryParam("firstName")}`, 20, 40);
+        doc.text(`Apellido: ${getQueryParam("lastName")}`, 20, 50);
+        doc.text(`Correo Electrónico: ${getQueryParam("email")}`, 20, 60);
+        doc.text(`Número de Teléfono: ${getQueryParam("phone")}`, 20, 70);
+        doc.text(`Dirección de Entrega: ${getQueryParam("address")}`, 20, 80);
+        doc.text(`Forma de Pago: ${getQueryParam("paymentMethod")}`, 20, 90);
+        doc.text(`Fecha de Entrega Deseada: ${getQueryParam("deliveryDate")}`, 20, 100);
+
+        // Descargar el archivo
+        doc.save("Confirmacion_Reserva.pdf");
+    }
+</script>
+
+</body>
+</html>

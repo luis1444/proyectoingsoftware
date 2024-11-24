@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Reservas</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff; /* Fondo blanco */
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Overlay para el modal */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .overlay.hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .container {
+            background-color: #ffffff; /* Fondo blanco */
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            overflow-y: auto;
+            max-height: 80vh;
+            border: 1px solid #ddd;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #2a3f54; /* Color secundario */
+        }
+
+        .reserva-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .reserva-item {
+            background-color: #f0f4f8; /* Fondo suave */
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .reserva-item h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: #2a3f54; /* Color oscuro */
+        }
+
+        .reserva-item p {
+            font-size: 1rem;
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="modal-overlay">
+    <div class="container">
+        <h1>Lista de Reservas</h1>
+        <div class="reserva-list">
+            <!-- Aquí se cargarán las reservas -->
+            <div th:each="reserva : ${reservas}" class="reserva-item">
+                <h3>Reserva #<span th:text="${reserva.id}"></span></h3>
+                <p><strong>Cliente:</strong>
+                    <span th:text="${reserva.cliente.nombreCliente ?: 'Sin Nombre'}"></span>
+                    <span th:text="${reserva.cliente.apellidoCliente ?: 'Sin Apellido'}"></span>
+                </p>
+                <p><strong>Vehículo:</strong>
+                    <span th:text="${reserva.vehiculo?.marca ?: 'No especificado'} + ' ' + ${reserva.vehiculo?.modelo ?: ''}"></span>
+                </p>
+                <p><strong>Color:</strong> <span th:text="${reserva.vehiculo?.color ?: 'N/A'}"></span></p>
+                <p><strong>Fecha de Reserva:</strong>
+                    <span th:text="${reserva.fechaReserva != null ? #dates.format(reserva.fechaReserva, 'yyyy-MM-dd HH:mm') : 'Sin Fecha'}"></span>
+                </p>
+                <p><strong>Estado:</strong> <span th:text="${reserva.estado ?: 'Desconocido'}"></span></p>
+                <p><strong>Fecha de Inicio:</strong>
+                    <span th:text="${reserva.fechaInicio != null ? #dates.format(reserva.fechaInicio, 'yyyy-MM-dd') : 'Sin Fecha'}"></span>
+                </p>
+                <p><strong>Fecha de Fin:</strong>
+                    <span th:text="${reserva.fechaFin != null ? #dates.format(reserva.fechaFin, 'yyyy-MM-dd') : 'Sin Fecha'}"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
+
+</body>
+</html>

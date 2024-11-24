@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Barra superior */
+        .navbar {
+            background-color: #2a3f54;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Contenedor del formulario */
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2a3f54;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #2a3f54;
+            box-shadow: 0 0 5px rgba(42, 63, 84, 0.5);
+        }
+
+        /* Botones */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 48%;
+            color: white;
+            background-color: #2a3f54;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3c5069;
+        }
+
+        /* Estilo adicional */
+        .form-description {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<!-- Barra superior -->
+<div class="navbar">
+    Concesionario Importador
+</div>
+
+<!-- Contenedor del formulario -->
+<div class="container">
+    <h2>Registro de Usuario</h2>
+    <form action="/registro" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ingrese su nombre" required>
+
+        <label for="usuario">Usuario:</label>
+        <input type="text" id="usuario" name="usuario" placeholder="Ingrese su nombre de usuario" required>
+
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono" placeholder="Ingrese su número de teléfono" required
+               pattern="[0-9]{10}" title="Debe ser un número de 10 dígitos">
+
+        <label for="contrasena">Contraseña:</label>
+        <input type="password" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña" required>
+
+        <label for="rol">Rol:</label>
+        <select id="rol" name="rol" required>
+            <option value="cliente">Cliente</option>
+            <option value="administrador">Administrador</option>
+            <option value="fabricante">Fabricante</option>
+        </select>
+
+        <div class="button-container">
+            <button type="submit" class="register-button">Registrar</button>
+            <button type="button" class="login-button" onclick="window.location.href='/iniciosesion'">Iniciar sesión</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
