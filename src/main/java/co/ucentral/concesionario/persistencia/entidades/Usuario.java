@@ -21,8 +21,9 @@ public class Usuario {
     @Column(name = "usu_usuario")
     public String usuario;
 
-    @Column(name = "usu_contrasena")
-    public String contrasena;
+
+    @Column(name = "usu_contrasena", nullable = false)
+    private String contrasena;
 
     @Column(name = "usu_rol")
     public String rol;

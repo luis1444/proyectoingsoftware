@@ -23,7 +23,11 @@
         .header h1 {
             margin: 0;
         }
-        .header .check-status-button {
+        .header .button-container {
+            display: flex;
+            gap: 15px;
+        }
+        .header .check-status-button, .header .logout-button {
             padding: 10px 20px;
             background-color: #16a085;
             color: white;
@@ -33,7 +37,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .header .check-status-button:hover {
+        .header .check-status-button:hover, .header .logout-button:hover {
             background-color: #3498db;
         }
         .main-content {
@@ -95,8 +99,11 @@
 
 <div class="header">
     <h1>Concesionario</h1>
-    <!-- Botón para consultar el estado de la reserva dentro del header -->
-    <button class="check-status-button" onclick="consultarEstadoReserva()">Consultar Estado de mi Reserva</button>
+    <!-- Contenedor para los botones -->
+    <div class="button-container">
+        <button class="check-status-button" onclick="consultarEstadoReserva()">Consultar Estado de mi Reserva</button>
+        <button class="logout-button" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
 </div>
 
 <div class="main-content">
@@ -148,6 +155,11 @@
             // Redirigir a la página de consulta de estado usando la ruta del controlador
             window.location.href = `/reservas/reservaConfirmada/${reservaId}`;
         }
+    }
+
+    function cerrarSesion() {
+        // Redirige a la página de cierre de sesión
+        window.location.href = '/iniciosesion';  // Ruta para cerrar sesión
     }
 
     cargarVehiculos();

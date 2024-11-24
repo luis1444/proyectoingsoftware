@@ -149,6 +149,8 @@
         <a href="#" class="button" onclick="verificarDisponibilidad()">Verificar Disponibilidad</a>
         <a href="#" class="button" onclick="abrirModificar()">Modificar Catálogo</a>
         <a href="#" class="button" onclick="entregarPedidos()">Entregar Pedidos</a>
+        <!-- Botón de Cerrar Sesión -->
+        <a href="#" class="button" onclick="cerrarSesion()">Cerrar Sesión</a>
     </div>
 
     <!-- Contenido principal -->
@@ -203,6 +205,11 @@
     function entregarPedidos() {
         document.getElementById("iframeModal").style.display = "flex";
         document.getElementById("iframeRegistro").src = "/pedidos/entregarPedidos"; // Nueva ruta para entregar pedidos
+    }
+
+    function cerrarSesion() {
+        // Aquí puedes agregar la lógica para cerrar sesión, como redirigir al login o borrar la sesión
+        window.location.href = "/iniciosesion"; // Por ejemplo, redirige a la página de cierre de sesión
     }
 
     function cargarVehiculos() {
