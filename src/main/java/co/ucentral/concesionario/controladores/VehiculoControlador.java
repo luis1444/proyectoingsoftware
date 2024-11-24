@@ -173,7 +173,7 @@ public class VehiculoControlador {
         if (vehiculo != null) {
             vehiculoServicios.borrar(vehiculo);
         }
-        return "redirect:/vehiculos";  // Redirige al listado de vehículos
+        return "redirect:/modificarVehiculo";  // Redirige al listado de vehículos
     }
 
     @GetMapping("/modificarVehiculo")

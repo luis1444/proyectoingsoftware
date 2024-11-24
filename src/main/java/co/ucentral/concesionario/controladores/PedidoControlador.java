@@ -1,6 +1,5 @@
 package co.ucentral.concesionario.controladores;
 
-import co.ucentral.concesionario.persistencia.entidades.Inventario;
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
 import co.ucentral.concesionario.servicios.InventarioServicios;
@@ -38,7 +37,7 @@ public class PedidoControlador {
             return "pedido_exitoso"; // Página de éxito
         } catch (Exception e) {
             model.addAttribute("error", "Error al registrar el pedido: " + e.getMessage());
-            return "pedido_error"; // Página de error
+            return "error"; // Página de error
         }
     }
 

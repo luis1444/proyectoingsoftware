@@ -109,6 +109,8 @@
         </div>
         <button type="submit" class="submit-button">Registrar Reserva</button>
     </form>
+
+    <button onclick="volver()" class="submit-button" style="background-color: #e74c3c; margin-top: 10px;">Volver</button>
 </div>
 
 <script>
@@ -158,6 +160,9 @@
             alert('Ocurrió un error al registrar la reserva. Detalles: ' + error.message);
         });
     });
+    function volver() {
+        window.location.href = "/pantallaCliente";
+    }
 
     function generarPDF(data) {
         const { jsPDF } = window.jspdf; // Accede a la librería jsPDF
