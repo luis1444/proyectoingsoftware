@@ -93,20 +93,27 @@ public class ReservasControlador {
     @GetMapping("/pendientes")
     @Transactional
     public String mostrarReservasPendientes(Model model) {
-        try {
-            List<Reserva> reservasPendientes = reservaServicios.obtenerReservasPendientes();
+        List<Reserva> reservasPendientes = reservaServicios.obtenerReservasPendientes();
 
-            // Verificar si hay reservas pendientes
-            if (reservasPendientes.isEmpty()) {
-                model.addAttribute("mensaje", "No hay reservas pendientes para entregar.");
-            } else {
-                model.addAttribute("reservas", reservasPendientes);
-            }
-
-            return "entregarReservas"; // Retorna la vista "entregarReservas.html"
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al cargar las reservas pendientes: " + e.getMessage());
-            return "error"; // Redirige a la vista de error si ocurre algún problema
+        if (reservasPendientes.isEmpty()) {
+            model.addAttribute("mensaje", "No hay reservas pendientes para entregar.");
+        } else {
+            model.addAttribute("reservas", reservasPendientes);
         }
+
+        return "entregarReservas"; // Renderiza la vista Thymeleaf
+    }
+    @PostMapping("/entregar")
+    public String entregarReserva(@RequestParam("reservaId") Long reservaId, Model model) {
+        try {
+            reservaServicios.entregarReserva(reservaId);
+            model.addAttribute("mensaje", "Reserva marcada como entregada exitosamente.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al entregar la reserva: " + e.getMessage());
+        }
+
+        return "redirect:/reservas/pendientes"; // Redirige para actualizar la vista
     }
 }

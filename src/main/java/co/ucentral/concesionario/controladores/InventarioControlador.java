@@ -95,17 +95,4 @@ public class InventarioControlador {
         }
     }
 
-    @PostMapping("/aceptarPedido")
-    @Transactional
-    public String aceptarPedido(@RequestParam Long pedidoId, Model model) {
-        try {
-            pedidoServicios.entregarPedido(pedidoId);
-            model.addAttribute("mensaje", "Pedido aceptado y actualizado en el inventario.");
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al aceptar el pedido: " + e.getMessage());
-        }
-        return "redirect:/inventario/verInventario";
-    }
 }

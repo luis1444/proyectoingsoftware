@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entregar Reservas</title>
+    <title>Reservas Pendientes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,74 +68,77 @@
             color: #888;
         }
     </style>
-    <script>
-        // Función para entregar una reserva
-        async function entregarReserva(reservaId) {
-            try {
-                const response = await fetch('/reservas/marcarEntregada/' + reservaId, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    alert('Reserva entregada correctamente');
-                    location.reload(); // Recargar la página para actualizar la tabla
-                } else {
-                    alert('Error al entregar la reserva');
-                }
-            } catch (error) {
-                alert('Error de conexión con el servidor');
-            }
-        }
-    </script>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
 <h1>Reservas Pendientes para Entregar</h1>
+
+<!-- Verificar si hay mensaje de error o éxito -->
+<div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+<div th:if="${error}" class="error" th:text="${error}"></div>
+
 <table>
     <thead>
     <tr>
         <th>ID Reserva</th>
         <th>Vehículo</th>
-        <th>Cantidad</th>
         <th>Estado</th>
-        <th>Dirección de Entrega</th>
         <th>Acción</th>
     </tr>
     </thead>
-    <tbody id="tablaReservas">
-    <!-- La tabla se llenará dinámicamente -->
+    <tbody>
+    <!-- Verificar si hay reservas -->
+    <tr th:each="reserva : ${reservas}">
+        <td th:text="${reserva.id}"></td>
+        <td th:text="${reserva.vehiculo.marca} + ' ' + ${reserva.vehiculo.modelo}"></td>
+        <td th:text="${reserva.estado}"></td>
+        <td>
+            <form th:action="@{/reservas/entregar}" method="post" class="form-entregar">
+                <input type="hidden" name="reservaId" th:value="${reserva.id}">
+                <button class="btn-entregar" type="button" onclick="confirmarEntrega(this)">Entregar</button>
+            </form>
+        </td>
+    </tr>
+
+    <!-- Mostrar un mensaje si no hay reservas -->
+    <tr th:if="${#lists.isEmpty(reservas)}">
+        <td colspan="6" class="no-reservas">No hay reservas pendientes para entregar.</td>
+    </tr>
     </tbody>
 </table>
+
+<!-- SweetAlert2 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Función para cargar las reservas pendientes desde el servidor
-    async function cargarReservas() {
-        const response = await fetch('/reservas/pendientes');
-        const reservas = await response.json();
+    function confirmarEntrega(button) {
+        // Mostrar SweetAlert2 de confirmación
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¿Quieres marcar esta reserva como entregada?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1abc9c',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, entregar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Si el usuario confirma, enviar el formulario
+                const form = button.closest('form');
+                form.submit();
 
-        const tabla = document.getElementById('tablaReservas');
-        if (reservas.length === 0) {
-            tabla.innerHTML = '<tr><td colspan="6" class="no-reservas">No hay reservas pendientes.</td></tr>';
-            return;
-        }
-
-        reservas.forEach(reserva => {
-            const fila = `
-                <tr>
-                    <td>${reserva.id}</td>
-                    <td>${reserva.vehiculo.marca} ${reserva.vehiculo.modelo}</td>
-                    <td>${reserva.cantidad}</td>
-                    <td>${reserva.estado}</td>
-                    <td>${reserva.direccionEntrega}</td>
-                    <td>
-                        <button class="btn-entregar" onclick="entregarReserva(${reserva.id})">Entregar</button>
-                    </td>
-                </tr>`;
-            tabla.innerHTML += fila;
+                // Mostrar mensaje de éxito después de la redirección
+                Swal.fire({
+                    title: '¡Reserva entregada!',
+                    text: 'La reserva se ha marcado como entregada correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#1abc9c',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
         });
     }
-
-    // Cargar las reservas al iniciar la página
-    cargarReservas();
 </script>
 </body>
 </html>

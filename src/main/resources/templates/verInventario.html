@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario y Pedidos</title>
+    <title>Inventario de Vehículos</title>
     <style>
         /* Estilo general */
         body {
@@ -61,32 +61,11 @@
             background-color: #f1f1f1;
         }
 
-        /* Estilo para los botones */
-        button {
-            background-color: #2a3f54;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #1f2c38;
-        }
-
-        /* Estilo para formularios */
-        form {
-            display: inline;
-        }
-
-        /* Espaciado */
-        .container {
-            width: 90%;
-            margin: 0 auto;
-            padding: 20px;
+        /* Estilo para la imagen */
+        img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -100,6 +79,7 @@
         <thead>
         <tr>
             <th>ID Vehículo</th>
+            <th>Marca</th>
             <th>Modelo</th>
             <th>Cantidad en Inventario</th>
         </tr>
@@ -108,36 +88,9 @@
         <!-- Iterar sobre el inventario -->
         <tr th:each="inventario : ${inventarios}">
             <td th:text="${inventario.vehiculo.id}"></td>
+            <td th:text="${inventario.vehiculo.marca}"></td>
             <td th:text="${inventario.vehiculo.modelo}"></td>
             <td th:text="${inventario.cantidad}"></td>
-        </tr>
-        </tbody>
-    </table>
-
-    <!-- Mostrar Pedidos Pendientes -->
-    <h2>Pedidos Pendientes</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>ID Pedido</th>
-            <th>Vehículo</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        <!-- Iterar sobre los pedidos pendientes -->
-        <tr th:each="pedido : ${pedidosPendientes}">
-            <td th:text="${pedido.id}"></td>
-            <td th:text="${pedido.vehiculo.modelo}"></td>
-            <td th:text="${pedido.cantidad}"></td>
-            <td>
-                <!-- Botón para aceptar el pedido -->
-                <form th:action="@{/inventario/aceptarPedido}" method="post">
-                    <input type="hidden" name="pedidoId" th:value="${pedido.id}" />
-                    <button type="submit">Aceptar Pedido</button>
-                </form>
-            </td>
         </tr>
         </tbody>
     </table>

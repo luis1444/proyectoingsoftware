@@ -44,4 +44,6 @@ public class Reserva {
     @Temporal(TemporalType.DATE)
     private Date fechaFin;  // Fecha de fin de la reserva
 
+
+
 }
