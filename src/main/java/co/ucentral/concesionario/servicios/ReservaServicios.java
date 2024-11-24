@@ -39,8 +39,8 @@ public class ReservaServicios {
     /**
      * Guardar o actualizar una reserva.
      */
-    public void guardarReserva(Reserva reserva) {
-        reservaRepositorio.save(reserva);
+    public Reserva guardarReserva(Reserva reserva) {
+        return reservaRepositorio.save(reserva); // Devuelve la entidad guardada
     }
 
     /**

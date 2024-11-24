@@ -33,13 +33,13 @@ public class ReservasControlador {
      * Consultar estado de una reserva y devolver en formato JSON.
      */
     @GetMapping("/reservaConfirmada/{id}")
-    @ResponseBody
-    public Reserva consultarEstadoReserva(@PathVariable Long id) {
+    public String consultarEstadoReserva(@PathVariable Long id, Model model) {
         Reserva reserva = reservaServicios.obtenerReservaPorId(id);
         if (reserva == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Reserva no encontrada");
         }
-        return reserva; // Retorna la reserva como JSON
+        model.addAttribute("reserva", reserva);
+        return "estadoReserva"; // Renderiza la vista estadoReserva.html
     }
 
     /**
@@ -47,22 +47,16 @@ public class ReservasControlador {
      */
     @PostMapping("/marcarEntregada/{id}")
     public String marcarReservaEntregada(@PathVariable Long id, Model model) {
-        try {
-            Reserva reserva = reservaServicios.obtenerReservaPorId(id);
-            if (reserva != null) {
-                reserva.setEstado("Entregado");
-                reservaServicios.guardarReserva(reserva);
-                model.addAttribute("mensaje", "Reserva marcada como entregada");
-                model.addAttribute("reserva", reserva);
-                return "estadoReserva"; // Renderiza la vista "estadoReserva.html"
-            } else {
-                model.addAttribute("error", "Reserva no encontrada");
-                return "error"; // Renderiza la vista "error.html"
-            }
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al marcar la reserva como entregada: " + e.getMessage());
-            return "error"; // Renderiza la vista "error.html"
+        Reserva reserva = reservaServicios.obtenerReservaPorId(id);
+        if (reserva != null) {
+            reserva.setEstado("Entregado");
+            reservaServicios.guardarReserva(reserva);
+            model.addAttribute("reserva", reserva);
+            model.addAttribute("mensaje", "La reserva ha sido marcada como entregada.");
+        } else {
+            model.addAttribute("error", "No se encontró la reserva.");
         }
+        return "estadoReserva"; // Renderiza la vista con el estado actualizado
     }
 
     /**
@@ -70,23 +64,18 @@ public class ReservasControlador {
      */
     @PostMapping("/cancelar/{id}")
     public String cancelarReserva(@PathVariable Long id, Model model) {
-        try {
-            Reserva reserva = reservaServicios.obtenerReservaPorId(id);
-            if (reserva != null) {
-                reserva.setEstado("Cancelada");
-                reservaServicios.guardarReserva(reserva);
-                model.addAttribute("mensaje", "Reserva cancelada con éxito");
-                model.addAttribute("reserva", reserva);
-                return "estadoReserva"; // Renderiza la vista "estadoReserva.html"
-            } else {
-                model.addAttribute("error", "Reserva no encontrada");
-                return "error"; // Renderiza la vista "error.html"
-            }
-        } catch (Exception e) {
-            model.addAttribute("error", "Error al cancelar la reserva: " + e.getMessage());
-            return "error"; // Renderiza la vista "error.html"
+        Reserva reserva = reservaServicios.obtenerReservaPorId(id);
+        if (reserva != null) {
+            reserva.setEstado("Cancelada");
+            reservaServicios.guardarReserva(reserva);
+            model.addAttribute("reserva", reserva);
+            model.addAttribute("mensaje", "La reserva ha sido cancelada.");
+        } else {
+            model.addAttribute("error", "No se encontró la reserva.");
         }
+        return "estadoReserva"; // Renderiza la vista con el estado actualizado
     }
+
 
     /**
      * Consultar todas las reservas desde el panel administrativo.

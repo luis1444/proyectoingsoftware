@@ -32,9 +32,6 @@
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       margin: 15px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
     .status-card p {
       font-size: 16px;
@@ -42,23 +39,16 @@
     }
     .status-card .status-label {
       font-weight: bold;
-      font-size: 18px;
     }
     .status-card .status-value {
       font-size: 16px;
       color: #ecf0f1;
     }
-    .input-container {
-      margin-bottom: 20px;
+    .button-container {
       text-align: center;
+      margin-top: 20px;
     }
-    .input-container input {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-    }
-    .input-container button {
+    .button-container button {
       padding: 10px 20px;
       background-color: #34495e;
       color: white;
@@ -66,169 +56,41 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
+      margin: 0 10px;
     }
-    .input-container button:hover {
+    .button-container button:hover {
       background-color: #2c3e50;
-    }
-    .footer {
-      background-color: #2c3e50;
-      color: white;
-      text-align: center;
-      padding: 10px;
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-    }
-    .button-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-
 <div class="reservation-status-container">
-  <h2>Consultar Estado de la Reserva</h2>
+  <h2>Estado de la Reserva</h2>
 
-  <div class="input-container">
-    <input type="text" id="reservationId" placeholder="Ingrese ID de la Reserva" />
-    <button onclick="consultarEstadoReserva()">Consultar Estado</button>
+  <!-- Mensaje de éxito o error -->
+  <div th:if="${mensaje}" style="color: #2ecc71; margin-bottom: 10px;">
+    <p th:text="${mensaje}"></p>
+  </div>
+  <div th:if="${error}" style="color: #e74c3c; margin-bottom: 10px;">
+    <p th:text="${error}"></p>
   </div>
 
-  <div id="reservationStatus" class="status-card">
-    <!-- El contenido de la reserva se generará dinámicamente -->
+  <!-- Detalles de la reserva -->
+  <div th:if="${reserva}" class="status-card">
+    <p><span class="status-label">ID de la Reserva:</span> <span class="status-value" th:text="${reserva.id}"></span></p>
+    <p><span class="status-label">Nombre del Cliente:</span> <span class="status-value" th:text="${reserva.cliente.nombreCliente}"></span></p>
+    <p><span class="status-label">Apellido del Cliente:</span> <span class="status-value" th:text="${reserva.cliente.apellidoCliente}"></span></p>
+    <p><span class="status-label">Correo Electrónico:</span> <span class="status-value" th:text="${reserva.cliente.correoElectronico}"></span></p>
+    <p><span class="status-label">Teléfono:</span> <span class="status-value" th:text="${reserva.cliente.numeroTelefono}"></span></p>
+    <p><span class="status-label">Estado:</span> <span class="status-value" th:text="${reserva.estado}"></span></p>
   </div>
 
-  <div id="buttonContainer" class="button-container" style="display: none;">
-    <button onclick="entregarReserva()">Marcar como Entregado</button>
-    <button onclick="cancelarReserva()">Cancelar Reserva</button>
+  <!-- Botón para cancelar la reserva (si no está entregada o cancelada) -->
+  <div class="button-container" th:if="${reserva.estado != 'Entregado' and reserva.estado != 'Cancelada'}">
+    <form th:action="@{/reservas/cancelar/{id}(id=${reserva.id})}" method="post">
+      <button type="submit">Cancelar Reserva</button>
+    </form>
   </div>
 </div>
-
-<div class="footer">
-  <p>&copy; 2024 Concesionario</p>
-</div>
-
-<script>
-  // Variable global para almacenar la reserva seleccionada
-  let selectedReservation = null;
-
-  // Función para consultar el estado de la reserva basado en el ID del vehículo
-
-async function consultarEstadoReserva() {
-  const reservationId = document.getElementById('reservationId').value;
-  const statusCard = document.getElementById('reservationStatus');
-  const buttonContainer = document.getElementById('buttonContainer');
-
-  if (!reservationId) {
-    alert("Por favor, ingrese el ID de la reserva.");
-    return;
-  }
-
-  try {
-    // Llamada al backend para obtener la reserva
-    const response = await fetch(`/reservas/reservaConfirmada/${reservationId}`);
-    if (response.ok) {
-      const reservation = await response.json();
-
-      // Mostrar detalles de la reserva
-      statusCard.innerHTML = `
-        <div>
-          <p><span class="status-label">ID de la Reserva:</span> <span class="status-value">${reservation.id}</span></p>
-          <p><span class="status-label">Cliente:</span> <span class="status-value">${reservation.firstName} ${reservation.lastName}</span></p>
-          <p><span class="status-label">Correo Electrónico:</span> <span class="status-value">${reservation.email}</span></p>
-          <p><span class="status-label">Número de Teléfono:</span> <span class="status-value">${reservation.phone}</span></p>
-          <p><span class="status-label">Dirección de Entrega:</span> <span class="status-value">${reservation.address}</span></p>
-          <p><span class="status-label">Forma de Pago:</span> <span class="status-value">${reservation.paymentMethod}</span></p>
-          <p><span class="status-label">Fecha de Entrega Deseada:</span> <span class="status-value">${reservation.deliveryDate}</span></p>
-        </div>
-        <div>
-          <p><span class="status-label">Estado:</span> <span class="status-value" style="color: ${getStatusColor(reservation.status)}">${reservation.status}</span></p>
-        </div>
-      `;
-
-      // Mostrar botones si la reserva no está entregada ni cancelada
-      if (reservation.status !== 'Entregado' && reservation.status !== 'Cancelada') {
-        buttonContainer.style.display = 'flex';
-      } else {
-        buttonContainer.style.display = 'none';
-      }
-    } else {
-      // Si no se encuentra la reserva
-      statusCard.innerHTML = `<p>Reserva no encontrada para el ID: ${reservationId}</p>`;
-      buttonContainer.style.display = 'none';
-    }
-  } catch (error) {
-    console.error("Error al consultar la reserva:", error);
-    statusCard.innerHTML = `<p>Ocurrió un error al consultar la reserva. Intente nuevamente más tarde.</p>`;
-    buttonContainer.style.display = 'none';
-  }
-}
-
-  // Función para devolver un color según el estado de la reserva
-  function getStatusColor(status) {
-    switch (status) {
-      case 'Confirmada':
-        return '#2ecc71'; // Verde para confirmada
-      case 'Pendiente':
-        return '#f39c12'; // Amarillo para pendiente
-      case 'Entregado':
-        return '#3498db'; // Azul para entregado
-      case 'Cancelada':
-        return '#e74c3c'; // Rojo para cancelada
-      default:
-        return '#ecf0f1'; // Color por defecto
-    }
-  }
-
-  // Función para marcar la reserva como entregada
-  function entregarReserva() {
-    if (!selectedReservation) {
-      alert("No se ha seleccionado una reserva válida.");
-      return;
-    }
-
-    // Cambiar el estado de la reserva a "Entregado"
-    selectedReservation.status = 'Entregado';
-
-    // Guardar los cambios en el localStorage
-    let reservas = JSON.parse(localStorage.getItem('reservations')) || [];
-    const index = reservas.findIndex(reservation => reservation.vehicleId === selectedReservation.vehicleId);
-    if (index !== -1) {
-      reservas[index] = selectedReservation;
-      localStorage.setItem('reservations', JSON.stringify(reservas));
-      alert("Reserva marcada como entregada.");
-
-      // Volver a consultar el estado después de marcarla como entregada
-      consultarEstadoReserva();
-    }
-  }
-
-  // Función para cancelar la reserva
-  function cancelarReserva() {
-    if (!selectedReservation) {
-      alert("No se ha seleccionado una reserva válida.");
-      return;
-    }
-
-    // Cambiar el estado de la reserva a "Cancelada"
-    selectedReservation.status = 'Cancelada';
-
-    // Guardar los cambios en el localStorage
-    let reservas = JSON.parse(localStorage.getItem('reservations')) || [];
-    const index = reservas.findIndex(reservation => reservation.vehicleId === selectedReservation.vehicleId);
-    if (index !== -1) {
-      reservas[index] = selectedReservation;
-      localStorage.setItem('reservations', JSON.stringify(reservas));
-      alert("Reserva cancelada con éxito.");
-
-      // Volver a consultar el estado después de la cancelación
-      consultarEstadoReserva();
-    }
-  }
-</script>
-
 </body>
 </html>
