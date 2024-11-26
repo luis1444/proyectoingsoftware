@@ -3,6 +3,7 @@ package co.ucentral.concesionario.controladores;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -81,6 +82,7 @@ public class VehiculoControlador {
         List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
         return vehiculos.stream().map(vehiculo -> {
             Map<String, Object> vehiculoMap = Map.of(
+                    "id", vehiculo.getId(),
                     "marca", vehiculo.getMarca(),
                     "modelo", vehiculo.getModelo(),
                     "anio", vehiculo.getAnio(),
@@ -88,6 +90,7 @@ public class VehiculoControlador {
                     "precio", vehiculo.getPrecio(),
                     "tipoCombustible", vehiculo.getTipoCombustible(),
                     "paisOrigen", vehiculo.getPaisOrigen(),
+                    "cantidadStock", vehiculo.getCantidadStock(),
                     "foto", vehiculo.getFoto() != null ? "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(vehiculo.getFoto()) : null
             );
             return vehiculoMap;
@@ -170,11 +173,85 @@ public class VehiculoControlador {
         if (vehiculo != null) {
             vehiculoServicios.borrar(vehiculo);
         }
-        return "redirect:/vehiculos";  // Redirige al listado de vehículos
+        return "redirect:/modificarVehiculo";  // Redirige al listado de vehículos
     }
 
     @GetMapping("/modificarVehiculo")
     public String mostrarModificarVehiculo() {
         return "modificarVehiculo"; // Asegúrate de tener un archivo .html correspondiente en resources/templates
     }
+    @GetMapping("/verificarDisponibilidad")
+    public String mostrarPantallaVerificarDisponibilidad(Model model) {
+        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
+        model.addAttribute("vehiculos", vehiculos); // Pasa la lista de vehículos al modelo
+        return "verificarDisponibilidad"; // Asegúrate de que exista esta vista en resources/templates
+    }
+
+    @PostMapping("/fabricarVehiculos")
+    public String fabricarVehiculos(@RequestParam Long idVehiculo, @RequestParam int cantidad, Model model) {
+        try {
+            vehiculoServicios.fabricarVehiculos(idVehiculo, cantidad);
+            return "redirect:/verificarDisponibilidad";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "error";
+        }
+    }
+
+    @GetMapping("/api/disponibilidad")
+    @ResponseBody
+    public List<Map<String, Object>> obtenerDisponibilidad() {
+        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
+        return vehiculos.stream().map(vehiculo -> {
+            Map<String, Object> disponibilidadMap = Map.of(
+                    "modelo", vehiculo.getModelo(),
+                    "marca", vehiculo.getMarca(),
+                    "anio", vehiculo.getAnio(),
+                    "stock", vehiculo.getCantidadStock()
+            );
+            return disponibilidadMap;
+        }).toList(); // Asegúrate de que `vehiculoServicios.obtenerTodos()` retorna una lista válida.
+    }
+
+    @PostMapping("/api/fabricarVehiculos")
+    @ResponseBody
+    public ResponseEntity<String> fabricarVehiculos(@RequestBody Map<String, Object> request) {
+        try {
+            // Validar y extraer idVehiculo
+            if (!request.containsKey("idVehiculo") || request.get("idVehiculo") == null) {
+                return ResponseEntity.badRequest().body("Error: idVehiculo es obligatorio.");
+            }
+            Long idVehiculo;
+            try {
+                idVehiculo = Long.valueOf(request.get("idVehiculo").toString());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Error: idVehiculo debe ser un número válido.");
+            }
+
+            // Validar y extraer cantidad
+            if (!request.containsKey("cantidad") || request.get("cantidad") == null) {
+                return ResponseEntity.badRequest().body("Error: cantidad es obligatoria.");
+            }
+            int cantidad;
+            try {
+                cantidad = Integer.parseInt(request.get("cantidad").toString());
+            } catch (NumberFormatException e) {
+                return ResponseEntity.badRequest().body("Error: cantidad debe ser un número entero válido.");
+            }
+
+            if (cantidad <= 0) {
+                return ResponseEntity.badRequest().body("Error: cantidad debe ser mayor a 0.");
+            }
+
+            // Llamamos al servicio para fabricar vehículos
+            vehiculoServicios.fabricarVehiculos(idVehiculo, cantidad);
+
+            return ResponseEntity.ok("Vehículos fabricados y stock actualizado correctamente.");
+        } catch (Exception e) {
+            e.printStackTrace(); // Solo para debug
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor.");
+        }
+    }
+
+
 }

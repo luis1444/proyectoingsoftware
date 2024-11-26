@@ -2,14 +2,15 @@ package co.ucentral.concesionario.controladores;
 
 import co.ucentral.concesionario.persistencia.entidades.Pedido;
 import co.ucentral.concesionario.persistencia.entidades.Vehiculo;
+import co.ucentral.concesionario.servicios.InventarioServicios;
 import co.ucentral.concesionario.servicios.PedidoServicios;
 import co.ucentral.concesionario.servicios.VehiculoServicios;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -22,53 +23,104 @@ public class PedidoControlador {
     @Autowired
     private VehiculoServicios vehiculoServicios;
 
-    @PostMapping("/realizarPedido")
+    InventarioServicios inventarioServicios;
+
+    // Registrar un nuevo pedido
+    @PostMapping("/registrarPedido")
     public String registrarPedido(@RequestParam Long vehiculoId,
                                   @RequestParam int cantidad,
-                                  @RequestParam String cliente,
-                                  @RequestParam String pais) { // Agregar el parámetro 'pais'
-        Vehiculo vehiculo = vehiculoServicios.obtenerPorId(vehiculoId);
-        if (vehiculo != null) {
-            // Crear un nuevo objeto Pedido y establecer sus propiedades
-            Pedido pedido = new Pedido();
-            pedido.setVehiculo(vehiculo);
-            pedido.setCantidad(cantidad);
-            pedido.setCliente(cliente);
-            pedido.setPais(pais); // Establecer el país
-            pedido.setFecha(LocalDate.now()); // Establecer la fecha actual
-            pedido.setEstado("Pendiente"); // Establecer un estado inicial
-
-            pedidoServicios.registrarPedido(pedido); // Asegúrate de que este método acepte un objeto Pedido
-            return "redirect:/pedidos"; // Redirigir a la página de pedidos
-        } else {
-            throw new RuntimeException("Vehículo no encontrado con ID: " + vehiculoId);
+                                  @RequestParam String pais,
+                                  Model model) {
+        try {
+            pedidoServicios.registrarPedido(vehiculoId, cantidad, pais);
+            model.addAttribute("mensaje", "Pedido registrado exitosamente.");
+            return "pedido_exitoso"; // Página de éxito
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al registrar el pedido: " + e.getMessage());
+            return "error"; // Página de error
         }
     }
 
+    // Mostrar todos los pedidos
     @GetMapping
     public String obtenerTodos(Model model) {
-        List<Pedido> pedidos = pedidoServicios.obtenerTodos();
-        model.addAttribute("pedidos", pedidos);
-        return "pedidos"; // Nombre de la plantilla Thymeleaf para mostrar los pedidos
+        try {
+            List<Pedido> pedidos = pedidoServicios.obtenerTodos();
+            model.addAttribute("pedidos", pedidos != null ? pedidos : List.of());
+            return "pedidos";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar los pedidos: " + e.getMessage());
+            return "error";
+        }
     }
 
+    // Mostrar formulario para realizar un pedido
     @GetMapping("/realizarPedido")
     public String mostrarRealizarPedido(Model model) {
-        List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos(); // Cargar vehículos para el formulario
-        model.addAttribute("vehiculos", vehiculos);
-        model.addAttribute("pedido", new Pedido()); // Crear un nuevo objeto Pedido
-        return "realizarPedido"; // Asegúrate de que este nombre coincida con tu plantilla
+        try {
+            List<Vehiculo> vehiculos = vehiculoServicios.obtenerTodos();
+            model.addAttribute("vehiculos", vehiculos != null ? vehiculos : List.of());
+            return "realizarPedido"; // Asegúrate de que esta plantilla existe
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar vehículos: " + e.getMessage());
+            return "error";
+        }
     }
 
-    @PutMapping("/{id}")
-    public String actualizarEstado(@PathVariable Long id, @RequestParam String nuevoEstado) {
-        pedidoServicios.actualizarEstado(id, nuevoEstado);
-        return "redirect:/pedidos"; // Redirigir a la página de pedidos actualizada
+    // Consultar pedidos
+    @GetMapping("/consultarPedidos")
+    public String mostrarPedidos(Model model) {
+        try {
+            List<Pedido> pedidos = pedidoServicios.obtenerTodos();
+            model.addAttribute("pedidos", pedidos != null ? pedidos : List.of());
+            return "consultarPedidos";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar pedidos: " + e.getMessage());
+            return "error";
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public String borrarPedido(@PathVariable Long id) {
-        pedidoServicios.borrarPedido(id);
-        return "redirect:/pedidos";
+    // Mostrar pedidos pendientes para entregar
+
+    @GetMapping("/entregarPedidos")
+    @Transactional // Necesario para manejar FetchType.LAZY
+    public String mostrarEntregarPedidos(Model model) {
+        try {
+            List<Pedido> pedidosPendientes = pedidoServicios.obtenerPedidosPorEstado("Pendiente");
+            if (pedidosPendientes == null || pedidosPendientes.isEmpty()) {
+                model.addAttribute("mensaje", "No hay pedidos pendientes para entregar.");
+            } else {
+                model.addAttribute("pedidos", pedidosPendientes);
+            }
+            return "entregarPedidos"; // Asegúrate de que esta plantilla exista
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al cargar pedidos pendientes: " + e.getMessage());
+            return "error";
+        }
     }
+
+    @PostMapping("/entregar")
+    @Transactional
+    public String entregarPedido(@RequestParam Long pedidoId, Model model) {
+        try {
+            pedidoServicios.entregarPedido(pedidoId);
+            model.addAttribute("mensaje", "Pedido entregado con éxito.");
+            model.addAttribute("tipo", "success"); // SweetAlert2
+        } catch (IllegalArgumentException e) { // Manejo de excepciones conocidas
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "warning"); // SweetAlert2
+        } catch (RuntimeException e) { // Manejo de errores del servicio
+            model.addAttribute("mensaje", e.getMessage());
+            model.addAttribute("tipo", "error"); // SweetAlert2
+        } catch (Exception e) { // Manejo de errores inesperados
+            model.addAttribute("mensaje", "Ocurrió un error inesperado.");
+            model.addAttribute("tipo", "error"); // SweetAlert2
+        }
+        return mostrarEntregarPedidos(model); // Carga nuevamente la vista actualizada
+    }
+
+
+
+
+
 }

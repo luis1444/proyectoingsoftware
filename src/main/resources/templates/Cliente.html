@@ -23,9 +23,13 @@
         .header h1 {
             margin: 0;
         }
-        .header .check-status-button {
+        .header .button-container {
+            display: flex;
+            gap: 15px;
+        }
+        .header .check-status-button, .header .logout-button {
             padding: 10px 20px;
-            background-color: #3498db;
+            background-color: #16a085;
             color: white;
             border: none;
             border-radius: 5px;
@@ -33,8 +37,8 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        .header .check-status-button:hover {
-            background-color: #2980b9;
+        .header .check-status-button:hover, .header .logout-button:hover {
+            background-color: #3498db;
         }
         .main-content {
             padding: 20px;
@@ -95,8 +99,11 @@
 
 <div class="header">
     <h1>Concesionario</h1>
-    <!-- Botón para consultar el estado de la reserva dentro del header -->
-    <button class="check-status-button" onclick="consultarEstadoReserva()">Consultar Estado de mi Reserva</button>
+    <!-- Contenedor para los botones -->
+    <div class="button-container">
+        <button class="check-status-button" onclick="consultarEstadoReserva()">Consultar Estado de mi Reserva</button>
+        <button class="logout-button" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
 </div>
 
 <div class="main-content">
@@ -121,7 +128,7 @@
                 vehiculos.forEach(vehiculo => {
                     const vehicleItem = document.createElement("div");
                     vehicleItem.classList.add("vehicle-card");
-                    vehicleItem.setAttribute("onclick", `reservarVehiculo('${vehiculo.marca} ${vehiculo.modelo}')`);
+                    vehicleItem.setAttribute("onclick", `reservarVehiculo(${vehiculo.id})`);
                     vehicleItem.innerHTML = `
                         <img src="${vehiculo.foto || 'placeholder.jpg'}" alt="Foto del vehículo">
                         <div class="vehicle-info">
@@ -136,24 +143,25 @@
             .catch(error => console.error('Error al cargar vehículos:', error));
     }
 
-    function reservarVehiculo(nombreVehiculo) {
-        // Reemplaza los espacios en el nombre con guiones para la URL
-        const nombreFormateado = nombreVehiculo.replace(/\s+/g, '-').toLowerCase();
-        // Redirige a la página de reserva con el nombre del vehículo
-        window.location.href = `http://localhost:63342/apl/concesionario/templates/reservarCliente.html?_ijt=3udbrcmtkavtmfargc6vmfdhu0&_ij_reload=RELOAD_ON_SAVE`;
+    function reservarVehiculo(vehiculoId) {
+        // Redirige a la página de reserva con el ID del vehículo como parámetro
+        window.location.href = `/cliente/reservar?vehiculoId=${vehiculoId}`;
     }
 
-    // Función para consultar el estado de la reserva
     function consultarEstadoReserva() {
         const reservaId = prompt("Introduce tu ID de reserva para consultar el estado:");
 
         if (reservaId) {
-            // Redirigir a una página de consulta de estado (puedes cambiar esta URL)
-            window.location.href = `http://localhost:63342/apl/concesionario/templates/estadoReserva.html?_ijt=4anm1pbrj6fectf24ecdl94s5s&_ij_reload=RELOAD_ON_SAVE`;
+            // Redirigir a la página de consulta de estado usando la ruta del controlador
+            window.location.href = `/reservas/reservaConfirmada/${reservaId}`;
         }
     }
 
-    // Llama a la función para cargar los vehículos al cargar la página
+    function cerrarSesion() {
+        // Redirige a la página de cierre de sesión
+        window.location.href = '/iniciosesion';  // Ruta para cerrar sesión
+    }
+
     cargarVehiculos();
 </script>
 

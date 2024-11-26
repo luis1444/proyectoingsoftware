@@ -22,11 +22,8 @@ public class Pedido {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "veh_id", nullable = false) // Relación con la entidad Vehiculo
+    @JoinColumn(name = "veh_id", nullable = false)
     private Vehiculo vehiculo;
-
-    @Column(name = "ped_cliente", nullable = false)
-    private String cliente;
 
     @Column(name = "ped_cantidad", nullable = false)
     private int cantidad;
@@ -37,7 +34,6 @@ public class Pedido {
     @Column(name = "ped_estado", nullable = false)
     private String estado;
 
-
-    @Column(name = "ped_pais", nullable = false) // Asegúrate de que esta columna exista en tu base de datos
+    @Column(name = "ped_pais", nullable = false)
     private String pais;
 }

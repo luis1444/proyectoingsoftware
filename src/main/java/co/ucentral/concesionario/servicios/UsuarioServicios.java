@@ -18,15 +18,21 @@ public class UsuarioServicios {
 
     public Usuario autenticarUsuario(String nombreUsuario, String contrasena) {
         Usuario usuarioEncontrado = usuarioRepositorio.findById(nombreUsuario).orElse(null);
+
         if (usuarioEncontrado != null) {
             System.out.println("Usuario encontrado: " + usuarioEncontrado.getUsuario());
-            // Ignorar temporalmente la verificación de la contraseña
-            return usuarioEncontrado;
+            // Verificar que la contraseña coincida
+            if (usuarioEncontrado.getContrasena().equals(contrasena)) {
+                return usuarioEncontrado; // Autenticación exitosa
+            } else {
+                System.out.println("Contraseña incorrecta");
+            }
         } else {
             System.out.println("Usuario no encontrado");
         }
-        return null;
+        return null; // Autenticación fallida
     }
+
 
     public List<Usuario> obtenerTodos() {
         return (List<Usuario>) usuarioRepositorio.findAll();

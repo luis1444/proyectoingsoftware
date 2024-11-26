@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de Vehículos</title>
+    <style>
+        /* Estilo general */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            color: #2a3f54;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            margin-top: 40px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #2a3f54;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        /* Estilo para las tablas */
+        table {
+            width: 80%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #2a3f54;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f1f1f1;
+        }
+
+        /* Estilo para la imagen */
+        img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Inventario de Vehículos</h1>
+
+    <!-- Mostrar Inventario -->
+    <h2>Inventario Actual</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID Vehículo</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Cantidad en Inventario</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Iterar sobre el inventario -->
+        <tr th:each="inventario : ${inventarios}">
+            <td th:text="${inventario.vehiculo.id}"></td>
+            <td th:text="${inventario.vehiculo.marca}"></td>
+            <td th:text="${inventario.vehiculo.modelo}"></td>
+            <td th:text="${inventario.cantidad}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

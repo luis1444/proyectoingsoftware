@@ -88,6 +88,44 @@
             max-height: 100px;
             border-radius: 8px;
         }
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+        .catalog {
+            background-color: #2a3f54;
+            color: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .vehicle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .vehicle-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .vehicle-item img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+        }
         /* Estilo para el modal */
         .iframe-modal {
             display: none;
@@ -139,12 +177,14 @@
         <a href="#" class="button" onclick="realizarPedido()">Realizar Pedido</a>
         <a href="#" class="button" onclick="verReservas()">Ver Reservas</a>
         <a href="#" class="button" onclick="entregarReservas()">Entregar Reservas</a>
+        <!-- Botón de Cerrar Sesión -->
+        <a href="/cerrar-sesion" class="button">Cerrar Sesión</a>
     </div>
 
     <!-- Contenido principal -->
     <div class="main-content">
-        <div id="mainHeader" class="content-header">Seleccione una opción del menú</div>
-        <div id="mainContent"></div>
+        <div id="mainHeader" class="content-header">CATÁLOGO DE VEHÍCULOS</div>
+        <div class="vehicle-list" id="vehicleList"></div>
     </div>
 </div>
 
@@ -158,20 +198,54 @@
 
 <script>
     function verInventario() {
-        mostrarModal('/verInventario.html'); // Asegúrate de que esta URL exista
+        mostrarModal('/inventario/verInventario');
     }
 
     function realizarPedido() {
-        mostrarModal('/pedidos/realizarPedido'); // Cambia a la URL real de "Realizar Pedido"
+        mostrarModal('/pedidos/realizarPedido');
     }
 
     function verReservas() {
-        mostrarModal('/verReservas.html'); // Asegúrate de que esta URL exista
+        mostrarModal('/reservas/consultarReservas');
     }
 
     function entregarReservas() {
-        mostrarModal('/entregarReservas.html'); // Cambia a la URL real de "Entregar Reservas"
+        mostrarModal('/reservas/pendientes');
     }
+
+    function cargarVehiculos() {
+        const vehicleList = document.getElementById("vehicleList");
+        vehicleList.innerHTML = "";
+
+        fetch('/api/vehiculos')
+            .then(response => response.json())
+            .then(vehiculos => {
+                if (vehiculos.length === 0) {
+                    vehicleList.innerHTML = "<p>No hay vehículos registrados.</p>";
+                    return;
+                }
+
+                vehiculos.forEach(vehiculo => {
+                    const vehicleItem = document.createElement("div");
+                    vehicleItem.classList.add("vehicle-item");
+                    vehicleItem.innerHTML = `
+                        <span><strong>Marca:</strong> ${vehiculo.marca}</span>
+                        <span><strong>Modelo:</strong> ${vehiculo.modelo}</span>
+                        <span><strong>Año:</strong> ${vehiculo.anio}</span>
+                        <span><strong>Color:</strong> ${vehiculo.color}</span>
+                        <span><strong>Precio:</strong> ${vehiculo.precio}</span>
+                        <span><strong>Combustible:</strong> ${vehiculo.tipoCombustible}</span>
+                        <span><strong>País:</strong> ${vehiculo.paisOrigen}</span>
+                        ${vehiculo.foto ? `<img src="${vehiculo.foto}" alt="Foto del vehículo">` : ''}
+                    `;
+                    vehicleList.appendChild(vehicleItem);
+                });
+            })
+            .catch(error => console.error('Error al cargar vehículos:', error));
+    }
+
+    // Cargar vehículos al iniciar la página
+    window.onload = cargarVehiculos;
 
     function mostrarModal(url) {
         const modal = document.getElementById("iframeModal");

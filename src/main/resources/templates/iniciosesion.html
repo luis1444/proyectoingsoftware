@@ -4,77 +4,138 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inicio de Sesión</title>
+  <!-- Cargar fuente Roboto desde Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
   <style>
+    /* Barra lateral */
+    .sidebar {
+      background-color: #2a3f54;
+      color: white;
+      width: 400px; /* Aumentamos el tamaño de la barra lateral */
+      padding: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      text-align: center;
+    }
+
+    .sidebar h1 {
+      font-family: 'Roboto', sans-serif; /* Cambiar la fuente a Roboto */
+      font-size: 36px; /* Titulo más grande */
+      color: transparent; /* Elimina el relleno del texto */
+      -webkit-background-clip: text; /* Hace que el color de fondo se aplique al texto */
+      background-image: linear-gradient(to right, #F9F6EE , #7196ab, #7f9ba8); /* Degradado suave de tonos azules */
+      margin: 0;
+    }
+
+    /* Contenedor principal */
     body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        background-color: #f4f4f9;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
+
     .login-container {
-        background-color: #fff;
-        padding: 20px 40px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        width: 300px;
-        text-align: center;
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+      width: 350px;
+      text-align: center;
+      margin-left: 720px; /* Se aumenta la separación */
+      margin-top: 50px;
     }
-    .login-container h2 {
-        margin-bottom: 20px;
+
+    h2 {
+      color: #2a3f54;
+      margin-bottom: 20px;
     }
-    .login-container input {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
     }
-    .login-container button {
-        width: 100%;
-        padding: 10px;
-        background-color: #7345a0;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
+
+    input:focus {
+      border-color: #2a3f54;
+      box-shadow: 0 0 5px rgba(42, 63, 84, 0.5);
     }
-    .login-container button:hover {
-        background-color: #5a358f;
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2a3f54;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+
+    button:hover {
+      background-color: #3c5069;
+    }
+
     .error-message {
-        color: red;
-        font-size: 14px;
-        margin-top: 10px;
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
     }
+
     .register-link {
-        margin-top: 15px;
-        font-size: 14px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .register-link a {
+      color: #2a3f54;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+<!-- Barra lateral -->
+<div class="sidebar">
+  <h1>Concesionario Importador</h1>
+</div>
 
+<!-- Contenedor del inicio de sesión -->
 <div class="login-container">
   <h2>Inicio de Sesión</h2>
-  <form action="/iniciar-sesion" method="post"> <!-- Acción actualizada -->
+  <form action="/iniciar-sesion" method="post">
     <input type="text" id="username" name="usuario" placeholder="Nombre de usuario" required>
     <input type="password" id="password" name="contrasena" placeholder="Contraseña" required>
     <button type="submit">Iniciar Sesión</button>
   </form>
 
-  <!-- Mensaje de error (muestra un mensaje si hay error) -->
+  <!-- Mensaje de error -->
   <div class="error-message" th:if="${error}">
     <span th:text="${error}"></span>
   </div>
 
   <div class="register-link">
-    <p>No tienes una cuenta? <a href="/registro">Regístrate aquí</a></p>
+    <p>¿No tienes una cuenta? <a href="/registro">Regístrate aquí</a></p>
   </div>
 </div>
-
 </body>
 </html>

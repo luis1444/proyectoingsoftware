@@ -29,7 +29,7 @@
         /* Barra lateral */
         .sidebar {
             width: 250px;
-            background-color: #2a3f54; /* Color original */
+            background-color: #2a3f54;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -45,7 +45,7 @@
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            background-color: #1abc9c; /* Verde original */
+            background-color: #1abc9c;
             color: #ffffff;
             text-align: center;
             border-radius: 8px;
@@ -66,7 +66,7 @@
             overflow-y: auto;
         }
         .catalog {
-            background-color: #2a3f54; /* Color original */
+            background-color: #2a3f54;
             color: #ffffff;
             border-radius: 10px;
             padding: 15px;
@@ -110,9 +110,11 @@
         .iframe-container {
             background-color: #ffffff;
             border-radius: 8px;
-            width: 500px;
-            height: 600px;
-            overflow: hidden;
+            width: 90%; /* Ancho relativo a la pantalla para adaptarse */
+            max-width: 800px; /* Ancho máximo en pantallas grandes */
+            height: 90%; /* Altura relativa para pantallas pequeñas */
+            max-height: 900px; /* Altura máxima */
+            overflow: auto; /* Activa la barra de desplazamiento si es necesario */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             position: relative;
         }
@@ -135,27 +137,6 @@
         .close-btn:hover {
             background-color: #cc0000;
         }
-        /* Estilo para el mensaje de éxito */
-        .success-message {
-            display: none;
-            position: fixed;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #28a745;
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            animation: showMessage 3s ease-out forwards;
-        }
-        @keyframes showMessage {
-            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-            100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
     </style>
 </head>
 <body>
@@ -168,6 +149,8 @@
         <a href="#" class="button" onclick="verificarDisponibilidad()">Verificar Disponibilidad</a>
         <a href="#" class="button" onclick="abrirModificar()">Modificar Catálogo</a>
         <a href="#" class="button" onclick="entregarPedidos()">Entregar Pedidos</a>
+        <!-- Botón de Cerrar Sesión -->
+        <a href="#" class="button" onclick="cerrarSesion()">Cerrar Sesión</a>
     </div>
 
     <!-- Contenido principal -->
@@ -183,30 +166,24 @@
 <div class="iframe-modal" id="iframeModal">
     <div class="iframe-container">
         <button class="close-btn" onclick="cerrarModal()">X</button>
-        <iframe id="iframeRegistro" src="" ></iframe>
+        <iframe id="iframeRegistro" src=""></iframe>
     </div>
-</div>
-
-<!-- Mensaje de éxito -->
-<div class="success-message" id="successMessage">
-    ¡Vehículo registrado con éxito!
 </div>
 
 <script>
     function abrirRegistro() {
         document.getElementById("iframeModal").style.display = "flex";
-        document.getElementById("iframeRegistro").src = "/registroVehiculo"; // Abrir formulario de registro
+        document.getElementById("iframeRegistro").src = "/registroVehiculo";
     }
 
     function abrirModificar() {
-        // Aquí solo abrimos el modal y cargamos la URL para modificar vehículo
         document.getElementById("iframeModal").style.display = "flex";
-        document.getElementById("iframeRegistro").src = "/modificarVehiculo"; // Cambiar la URL para modificar
+        document.getElementById("iframeRegistro").src = "/modificarVehiculo";
     }
 
     function cerrarModal() {
         document.getElementById("iframeModal").style.display = "none";
-        document.getElementById("iframeRegistro").src = ""; // Limpiar la URL del iframe al cerrar
+        document.getElementById("iframeRegistro").src = "";
     }
 
     document.getElementById("iframeModal").addEventListener("click", function(event) {
@@ -214,6 +191,26 @@
             cerrarModal();
         }
     });
+
+    function verificarDisponibilidad() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/verificarDisponibilidad";
+    }
+
+    function consultarPedidos() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/pedidos/consultarPedidos";
+    }
+
+    function entregarPedidos() {
+        document.getElementById("iframeModal").style.display = "flex";
+        document.getElementById("iframeRegistro").src = "/pedidos/entregarPedidos"; // Nueva ruta para entregar pedidos
+    }
+
+    function cerrarSesion() {
+        // Aquí puedes agregar la lógica para cerrar sesión, como redirigir al login o borrar la sesión
+        window.location.href = "/iniciosesion"; // Por ejemplo, redirige a la página de cierre de sesión
+    }
 
     function cargarVehiculos() {
         const vehicleList = document.getElementById("vehicleList");
